@@ -1,7 +1,7 @@
 const TOTAL_LAYERS = 52;
 const GRID_SIZE = 19;
 const STORAGE_KEY = "ancientGuardianOakBuilderV3"; // keep existing key so progress is preserved
-const APP_VERSION = 9;
+const APP_VERSION = 10;
 const COLUMNS = "ABCDEFGHIJKLMNOPQRS".split("");
 const $ = (id) => document.getElementById(id);
 
@@ -94,25 +94,49 @@ const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 const centerCell = (x,y) => x >= 4 && x <= 13 && y >= 3 && y <= 13;
 const entranceCell = (x,y) => x >= 8 && x <= 9 && y >= 14 && y <= 18;
 
-function cellType(x,y) {
+function cellDisplay(x,y) {
   const key = `${x},${y}`;
   const currentHas = Boolean(state.layers[state.currentLayer].cells[key]);
   const hasPreviousLayer = state.currentLayer > 1;
   const previousHas = hasPreviousLayer && Boolean(state.layers[state.currentLayer - 1].cells[key]);
+  const classes = [];
+  let primary = "ground";
 
-  // Changes are always drawn first so removals can never disappear beneath
-  // the Pokémon Center overlay or the previous-layer ghost.
-  if (state.settings.showChanges && hasPreviousLayer) {
-    if (currentHas && !previousHas) return "added";
-    if (!currentHas && previousHas) return "removed";
+  // Base view: current-layer blocks always remain ordinary brown build blocks.
+  // The previous layer is only a gray ghost when explicitly enabled and when
+  // there is no current block in that square.
+  if (state.settings.showCurrent && currentHas) {
+    primary = "wood";
+    classes.push("wood");
+  } else if (state.settings.showPrevious && previousHas) {
+    primary = "previous";
+    classes.push("previous");
+  } else if (state.currentLayer <= 4 && state.settings.center && entranceCell(x,y)) {
+    primary = "entrance";
+    classes.push("entrance");
+  } else if (state.currentLayer <= 4 && state.settings.center && centerCell(x,y)) {
+    primary = "clearance";
+    classes.push("clearance");
+  } else {
+    classes.push("ground");
   }
 
-  if (state.settings.showCurrent && currentHas) return "wood";
-  if (state.settings.showPrevious && previousHas) return "previous";
+  // Changes are overlays, not replacement cell types. A removal X can only
+  // appear where the current layer is empty and the previous layer had a block.
+  // An addition marker can only appear on a current block absent below.
+  if (state.settings.showChanges && hasPreviousLayer) {
+    if (!currentHas && previousHas) classes.push("change-removed");
+    if (currentHas && !previousHas) classes.push("change-added");
+  }
 
-  if (state.currentLayer <= 4 && state.settings.center && entranceCell(x,y)) return "entrance";
-  if (state.currentLayer <= 4 && state.settings.center && centerCell(x,y)) return "clearance";
-  return "ground";
+  return { primary, classes, currentHas, previousHas };
+}
+
+function cellType(x,y) {
+  const display = cellDisplay(x,y);
+  if (display.classes.includes("change-removed")) return "removed";
+  if (display.classes.includes("change-added")) return "added";
+  return display.primary;
 }
 
 function materialName(type) {
@@ -145,10 +169,11 @@ function renderBlueprint() {
     rowLabel.textContent = y + 1;
     grid.appendChild(rowLabel);
     for (let x = 0; x < GRID_SIZE; x++) {
+      const display = cellDisplay(x,y);
       const type = cellType(x,y);
       const button = document.createElement("button");
       button.type = "button";
-      button.className = `cell ${type}`;
+      button.className = `cell ${display.classes.join(" ")}`;
       button.dataset.x = x;
       button.dataset.y = y;
       button.setAttribute("aria-label", `${COLUMNS[x]}${y+1}, ${materialName(type)}`);

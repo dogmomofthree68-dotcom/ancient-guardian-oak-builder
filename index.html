@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#3f4d2f" />
+  <meta name="theme-color" content="#33412b" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Oak Builder" />
@@ -13,128 +13,109 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="app-header">
+  <header class="topbar">
     <div>
-      <p class="eyebrow">Pokopia build companion</p>
+      <p class="eyebrow">Pokopia blueprint book</p>
       <h1>Ancient Guardian Oak Builder</h1>
     </div>
-    <button id="installButton" class="ghost hidden">Install App</button>
+    <div class="top-actions">
+      <button id="focusMode" class="secondary">Build Focus</button>
+      <button id="installButton" class="secondary hidden">Install App</button>
+    </div>
   </header>
 
-  <main class="app-shell">
-    <aside class="sidebar card">
+  <main class="layout">
+    <aside class="panel sidebar">
       <section>
-        <div class="section-heading">
-          <h2>Build progress</h2>
-          <span id="progressLabel">0 / 52</span>
-        </div>
+        <div class="row between"><h2>Project progress</h2><strong id="progressLabel">0 / 52</strong></div>
         <div class="progress-track"><div id="progressBar"></div></div>
       </section>
 
-      <section class="control-stack">
-        <label for="layerRange">Layer</label>
+      <section class="stack">
+        <label for="layerRange">Current layer</label>
         <input id="layerRange" type="range" min="1" max="52" value="1" />
-        <div class="layer-controls">
-          <button id="previousLayer">← Previous</button>
-          <input id="layerNumber" type="number" min="1" max="52" value="1" />
-          <button id="nextLayer">Next →</button>
+        <div class="layer-nav">
+          <button id="previousLayer">←</button>
+          <input id="layerNumber" type="number" min="1" max="52" value="1" aria-label="Layer number" />
+          <button id="nextLayer">→</button>
         </div>
       </section>
 
-      <section class="control-stack">
-        <h2>View</h2>
-        <label class="toggle-row"><input id="coordinatesToggle" type="checkbox" checked /> Show coordinates</label>
-        <label class="toggle-row"><input id="gridToggle" type="checkbox" checked /> Show grid lines</label>
-        <label class="toggle-row"><input id="pokeCenterToggle" type="checkbox" checked /> Show Pokémon Center footprint</label>
+      <section class="stack">
+        <h2>Blueprint view</h2>
+        <label class="check"><input id="coordinatesToggle" type="checkbox" checked /> Coordinates</label>
+        <label class="check"><input id="gridToggle" type="checkbox" checked /> Grid lines</label>
+        <label class="check"><input id="pokeCenterToggle" type="checkbox" checked /> Reserved center and entrance</label>
       </section>
 
-      <section class="control-stack">
-        <h2>Paint blocks</h2>
-        <div id="palette" class="palette"></div>
-        <p class="hint">Tap a block type, then tap cells on the blueprint. Choose Eraser to remove blocks.</p>
-      </section>
-
-      <section class="control-stack">
+      <section class="stack">
+        <h2>Build status</h2>
         <button id="completeLayer" class="primary">Mark layer complete</button>
-        <button id="clearLayer">Clear this layer</button>
-        <button id="resetLayer">Restore starter layer</button>
+        <button id="resetLayer">Restore approved layer</button>
       </section>
 
-      <section class="control-stack">
-        <h2>Project</h2>
-        <button id="exportProject">Export save file</button>
-        <label class="file-button">Import save file<input id="importProject" type="file" accept=".json,application/json" /></label>
-        <button id="resetProject" class="danger-text">Reset entire project</button>
+      <section class="stack">
+        <h2>Save</h2>
+        <button id="exportProject">Export progress</button>
+        <label class="file-button">Import progress<input id="importProject" type="file" accept=".json,application/json" /></label>
       </section>
     </aside>
 
     <section class="workspace">
-      <article class="card layer-card">
-        <div class="layer-header">
+      <article class="panel blueprint-panel">
+        <div class="blueprint-heading">
           <div>
             <p id="phaseLabel" class="eyebrow"></p>
             <h2 id="layerTitle">Layer 1</h2>
             <p id="layerGuidance" class="guidance"></p>
           </div>
-          <div class="status-group">
-            <span id="layerStatus" class="status-pill">Not complete</span>
-            <span class="orientation-pill">North ↑</span>
+          <div class="badges">
+            <span id="layerStatus" class="badge">Not complete</span>
+            <span class="badge">North ↑</span>
           </div>
         </div>
 
-        <div class="blueprint-wrap">
-          <div id="blueprint" class="blueprint" aria-label="19 by 19 editable block blueprint"></div>
+        <div class="grid-shell">
+          <div class="north-label">NORTH ↑</div>
+          <div id="blueprint" class="blueprint" aria-label="19 by 19 Ancient Guardian Oak blueprint"></div>
         </div>
 
-        <div class="legend">
-          <span><i class="swatch wood"></i> Puffy Tree Pillar</span>
-          <span><i class="swatch moss"></i> Moss</span>
-          <span><i class="swatch lightwall"></i> Light Wooden Wall</span>
-          <span><i class="swatch gravel"></i> Gravel</span>
-          <span><i class="swatch clearance"></i> Pokémon Center footprint</span>
-          <span><i class="swatch entrance-key"></i> South entrance</span>
+        <div class="legend" aria-label="Blueprint key">
+          <span><i class="swatch wood"></i>Puffy Tree Pillar</span>
+          <span><i class="swatch clearance"></i>Pokémon Center footprint</span>
+          <span><i class="swatch entrance"></i>South entrance</span>
+          <span><i class="swatch ground"></i>Empty ground</span>
         </div>
       </article>
 
-      <div class="dashboard-grid">
-        <article class="card">
-          <div class="section-heading"><h2>Materials on this layer</h2><span id="blockTotal">0 blocks</span></div>
-          <div id="materialList" class="material-list"></div>
+      <div class="info-grid">
+        <article class="panel inspector">
+          <h2>Selected square</h2>
+          <div class="coordinate-value" id="selectedCoordinate">Tap a square</div>
+          <dl>
+            <div><dt>Material</dt><dd id="selectedMaterial">—</dd></div>
+            <div><dt>Status</dt><dd id="selectedStatus">—</dd></div>
+          </dl>
         </article>
 
-        <article class="card">
+        <article class="panel summary">
+          <div class="row between"><h2>Layer summary</h2><strong id="blockTotal">162 blocks</strong></div>
+          <dl id="summaryFacts"></dl>
+        </article>
+
+        <article class="panel notes-panel">
           <h2>Layer notes</h2>
-          <textarea id="layerNotes" rows="7" placeholder="Add build notes, corrections, or reminders for this layer…"></textarea>
-        </article>
-
-        <article class="card comparison-card">
-          <h2>Build photo comparison</h2>
-          <p class="hint">Choose a screenshot or photo from your iPad. It stays on your device.</p>
-          <label class="file-button">Choose image<input id="comparisonInput" type="file" accept="image/*" /></label>
-          <div id="comparisonPreview" class="comparison-preview">
-            <span>No image selected</span>
-          </div>
-          <button id="removeComparison" class="ghost">Remove image</button>
-        </article>
-
-        <article id="lockedFacts" class="card settings-card">
-          <h2>Layer 1 locked dimensions</h2>
-          <div class="fact-list">
-            <div><span>Tree grid</span><strong>19 × 19</strong></div>
-            <div><span>Pokémon Center</span><strong>10 × 11</strong></div>
-            <div><span>Center footprint</span><strong>E4–N14</strong></div>
-            <div><span>Wall thickness</span><strong>2 blocks</strong></div>
-            <div><span>South entrance</span><strong>I15–J19</strong></div>
-            <div><span>Puffy Tree Pillar</span><strong>162</strong></div>
-          </div>
+          <textarea id="layerNotes" rows="6" placeholder="Add a reminder or correction for this layer…"></textarea>
         </article>
       </div>
     </section>
   </main>
 
-  <footer>
-    <p>Progress, edits, notes, and settings save automatically on this device.</p>
-  </footer>
+  <div id="focusToolbar" class="focus-toolbar hidden">
+    <button id="exitFocus">Exit Focus</button>
+    <strong id="focusLayer">Layer 1</strong>
+    <span id="focusCount">162 blocks</span>
+  </div>
 
   <script src="app.js"></script>
 </body>

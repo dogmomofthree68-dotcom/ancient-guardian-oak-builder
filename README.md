@@ -1,29 +1,22 @@
-# Ancient Guardian Oak Builder — Exact Layer 1
+# Ancient Guardian Oak Builder — Layer 1 Blueprint Edition
 
-An iPad-friendly Pokopia build companion using the approved Ancient Guardian Tree foundation blueprint.
+This release uses the approved exact 19×19 Layer 1 foundation blueprint.
 
-## Verified blueprint included
+## Included improvements
+- Perfect square grid cells
+- A–S column labels and 1–19 row labels
+- Tap-to-inspect coordinates and materials
+- Layer summary with locked dimensions
+- Build Focus mode for iPad
+- Layer completion tracking, notes, and progress export/import
+- Updated offline cache
 
-- Layer 1 exact 19×19 foundation grid
-- 162 Puffy Tree Pillar blocks
-- 10×11 Pokémon Center footprint at E4–N14
-- Two-block-thick tree wall
-- South entrance open at I15–J19
-- Six asymmetrical buttress areas
+## GitHub update
+Replace these files in the repository root:
+- index.html
+- styles.css
+- app.js
+- sw.js
+- README.md
 
-Layers 2–52 are intentionally blank until each layer is verified in-game. This prevents the app from presenting guessed blocks as finished blueprints.
-
-## Features
-
-- Touch-friendly editing
-- Lettered columns A–S and numbered rows 1–19
-- Locked Pokémon Center and entrance overlays
-- Per-layer completion, notes, and material counts
-- Local screenshot comparison
-- Automatic local saving
-- JSON export/import
-- Offline-capable Progressive Web App
-
-## Updating GitHub Pages
-
-Upload the extracted files and the `icons` folder to the root of the repository on the `main` branch, replacing the older versions. Do not upload only the ZIP file.
+Keep the existing `icons` folder and `manifest.webmanifest` unless you are replacing the whole project.

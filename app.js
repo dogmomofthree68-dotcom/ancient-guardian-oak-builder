@@ -42,11 +42,9 @@ function loadState() {
     if (!saved?.layers) return freshState();
     const base = freshState();
     const mergedLayers = { ...base.layers, ...saved.layers };
-    // Layer 2 was blank in the previous release. Populate the approved pattern
-    // during migration while preserving completion status and notes.
-    if (!mergedLayers[2]?.cells || Object.keys(mergedLayers[2].cells).length === 0) {
-      mergedLayers[2] = { ...base.layers[2], ...(mergedLayers[2] || {}), cells: layerOneCells() };
-    }
+    // Layer 2 is a locked verified blueprint. Always restore its approved
+    // 162-block pattern while preserving completion status and notes.
+    mergedLayers[2] = { ...base.layers[2], ...(mergedLayers[2] || {}), cells: layerOneCells() };
     return {
       ...base,
       ...saved,

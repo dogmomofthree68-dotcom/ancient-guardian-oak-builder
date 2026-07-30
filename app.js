@@ -1,116 +1,66 @@
-\
-const GRID_SIZE = 31;
+const GRID_SIZE = 19;
 const TOTAL_LAYERS = 52;
-const STORAGE_KEY = "ancientGuardianOakBuilderV2";
+const STORAGE_KEY = "ancientGuardianOakBuilderLayer1V1";
+const COLUMN_LABELS = "ABCDEFGHIJKLMNOPQRS".split("");
 
 const BLOCKS = {
-  wood: { label: "Ancient wood", color: "#805a3f" },
-  darkwood: { label: "Dark bark", color: "#543c2d" },
-  moss: { label: "Moss", color: "#718851" },
-  leaves: { label: "Leaves", color: "#527247" },
-  stone: { label: "Stone", color: "#8d8b83" },
-  erase: { label: "Eraser", color: "#f7f2e9" }
+  wood: { label: "Puffy Tree Pillar", color: "#9a592b" },
+  moss: { label: "Moss Block", color: "#718851" },
+  lightwall: { label: "Light Wooden Wall", color: "#caa873" },
+  gravel: { label: "Gravel", color: "#8d8b83" },
+  erase: { label: "Eraser", color: "#eef0dc" }
 };
 
 const $ = (id) => document.getElementById(id);
 
-function defaultSettings() {
-  return {
-    pokeWidth: 10,
-    pokeDepth: 11,
-    roofLayer: 8,
-    southOffset: 3,
-    showCoordinates: true,
-    showGrid: true,
-    showPokeCenter: true
-  };
+// Exact Layer 1 footprint transcribed from the approved 19×19 PDF.
+// Each row lists inclusive brown-cell column ranges using 1-based columns A–S.
+const LAYER_ONE_RANGES = {
+  1: [[7, 12]],
+  2: [[3, 16]],
+  3: [[3, 16]],
+  4: [[1, 4], [15, 18]],
+  5: [[2, 4], [15, 18]],
+  6: [[1, 4], [15, 17], [19, 19]],
+  7: [[2, 4], [15, 17]],
+  8: [[2, 4], [15, 17]],
+  9: [[1, 1], [3, 4], [15, 18]],
+  10: [[1, 4], [15, 16], [18, 19]],
+  11: [[1, 4], [15, 18]],
+  12: [[1, 4], [15, 18]],
+  13: [[2, 4], [15, 17]],
+  14: [[3, 4], [15, 16]],
+  15: [[3, 8], [11, 16]],
+  16: [[3, 8], [11, 16]],
+  17: [[3, 8], [11, 16]],
+  18: [[4, 8], [11, 15]],
+  19: [[5, 7], [12, 14]]
+};
+
+function exactLayerOne() {
+  const cells = {};
+  Object.entries(LAYER_ONE_RANGES).forEach(([rowText, ranges]) => {
+    const y = Number(rowText) - 1;
+    ranges.forEach(([start, end]) => {
+      for (let col = start; col <= end; col++) cells[`${col - 1},${y}`] = "wood";
+    });
+  });
+  return cells;
 }
 
 function starterLayer(layer) {
-  const cells = {};
-  const centerX = 15 - Math.round(Math.max(0, layer - 9) * 0.12);
-  const centerY = 15;
-  let rx, ry;
-
-  if (layer <= 8) {
-    rx = 8 - Math.floor((layer - 1) / 3);
-    ry = 7 - Math.floor((layer - 1) / 4);
-  } else if (layer <= 34) {
-    rx = Math.max(4, 7 - Math.floor((layer - 8) / 7));
-    ry = Math.max(4, 7 - Math.floor((layer - 8) / 8));
-  } else if (layer <= 43) {
-    rx = Math.max(2, 5 - Math.floor((layer - 34) / 3));
-    ry = Math.max(2, 5 - Math.floor((layer - 34) / 3));
-  } else {
-    rx = 2;
-    ry = 2;
-  }
-
-  for (let y = 0; y < GRID_SIZE; y++) {
-    for (let x = 0; x < GRID_SIZE; x++) {
-      const dx = (x - centerX) / rx;
-      const dy = (y - centerY) / ry;
-      let inside = dx * dx + dy * dy <= 1;
-
-      if (layer <= 8) {
-        const rootA = y >= 17 && y <= 23 && Math.abs(x - 15) <= Math.max(1, 11 - (y - 17) * 2);
-        const rootB = x >= 4 && x <= 12 && Math.abs(y - 19) <= Math.max(1, 4 - Math.floor((x - 4) / 3));
-        const rootC = x >= 19 && x <= 27 && Math.abs(y - 19) <= Math.max(1, 4 - Math.floor((27 - x) / 3));
-        const rootD = y >= 20 && y <= 27 && Math.abs(x - 8) <= 2;
-        const rootE = y >= 20 && y <= 27 && Math.abs(x - 23) <= 2;
-        inside = inside || rootA || rootB || rootC || rootD || rootE;
-      }
-
-      if (layer >= 35 && layer <= 45) {
-        const branchLeft = y >= 13 && y <= 15 && x >= centerX - 10 && x < centerX;
-        const branchRight = y >= 16 && y <= 18 && x > centerX && x <= centerX + 10;
-        inside = inside || branchLeft || branchRight;
-      }
-
-      if (inside) {
-        const edge = Math.abs(dx * dx + dy * dy - 1) < 0.35;
-        cells[`${x},${y}`] = edge ? "darkwood" : "wood";
-      }
-    }
-  }
-
-  if (layer >= 42) {
-    const crownRadius = Math.max(5, 12 - Math.floor((layer - 42) * 0.7));
-    for (let y = 0; y < GRID_SIZE; y++) {
-      for (let x = 0; x < GRID_SIZE; x++) {
-        const d = Math.hypot(x - centerX, y - centerY);
-        const organic = Math.sin(x * 1.7 + y * 2.3 + layer) + Math.cos(x * .8 - y * 1.1);
-        if (d <= crownRadius + organic * .8 && d >= 2.4 && !cells[`${x},${y}`]) {
-          cells[`${x},${y}`] = layer % 3 === 0 && organic > 1 ? "moss" : "leaves";
-        }
-      }
-    }
-  }
-
-  if (layer <= 8) {
-    for (let y = 16; y <= 24; y++) {
-      for (let x = 14; x <= 16; x++) {
-        delete cells[`${x},${y}`];
-      }
-    }
-  }
-
-  return cells;
+  return layer === 1 ? exactLayerOne() : {};
 }
 
 function defaultState() {
   const layers = {};
   for (let i = 1; i <= TOTAL_LAYERS; i++) {
-    layers[i] = {
-      cells: starterLayer(i),
-      completed: false,
-      notes: ""
-    };
+    layers[i] = { cells: starterLayer(i), completed: false, notes: "" };
   }
   return {
     currentLayer: 1,
     selectedBlock: "wood",
-    settings: defaultSettings(),
+    settings: { showCoordinates: true, showGrid: true, showPokeCenter: true },
     layers
   };
 }
@@ -138,39 +88,26 @@ function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+function isCenterCell(x, y) {
+  // E4 through N14: columns 5–14, rows 4–14.
+  return x >= 4 && x <= 13 && y >= 3 && y <= 13;
+}
+
+function isEntranceCell(x, y) {
+  // I15 through J19.
+  return x >= 8 && x <= 9 && y >= 14 && y <= 18;
+}
+
 function phaseFor(layer) {
-  if (layer <= 8) return "Root foundation";
-  if (layer <= 22) return "Lower trunk";
-  if (layer <= 34) return "Pokécenter chamber and trunk";
-  if (layer <= 43) return "Upper trunk and main branches";
-  return "Ancient canopy";
+  if (layer === 1) return "Exact foundation blueprint";
+  return "Awaiting verified blueprint";
 }
 
 function guidanceFor(layer) {
-  if (layer <= 8) return "Build the broad, uneven roots first. Keep the south approach open and let the base feel naturally asymmetrical.";
-  if (layer <= 22) return "Raise the heavy lower trunk. The starter design leans slightly left so the tree does not feel perfectly manufactured.";
-  if (layer <= 34) return "Continue the trunk around the Pokécenter footprint. The blue overlay is a guide only and follows your settings.";
-  if (layer <= 43) return "Taper the upper trunk and form the main branch supports before adding the crown.";
-  return "Build the canopy in broken clusters rather than a perfect circle. Mix leaves and moss for an old, forgotten-world feeling.";
-}
-
-function pokeCenterCells(layer) {
-  if (!state.settings.showPokeCenter || layer > state.settings.roofLayer) return new Set();
-  const w = Number(state.settings.pokeWidth);
-  const d = Number(state.settings.pokeDepth);
-  const southOffset = Number(state.settings.southOffset);
-  const startX = Math.floor((GRID_SIZE - w) / 2);
-  const startY = Math.floor((GRID_SIZE - d) / 2) + southOffset;
-  const result = new Set();
-
-  for (let y = startY; y < startY + d; y++) {
-    for (let x = startX; x < startX + w; x++) {
-      if (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
-        result.add(`${x},${y}`);
-      }
-    }
+  if (layer === 1) {
+    return "Build the approved 19×19 ground-level footprint. Keep E4–N14 empty for the 10×11 Pokémon Center and leave I15–J19 open as the south entrance.";
   }
-  return result;
+  return "This layer is intentionally blank until its block pattern is verified in Pokopia.";
 }
 
 function renderPalette() {
@@ -192,11 +129,8 @@ function renderPalette() {
 function paintCell(x, y) {
   const layer = state.layers[state.currentLayer];
   const key = `${x},${y}`;
-  if (state.selectedBlock === "erase") {
-    delete layer.cells[key];
-  } else {
-    layer.cells[key] = state.selectedBlock;
-  }
+  if (state.selectedBlock === "erase") delete layer.cells[key];
+  else layer.cells[key] = state.selectedBlock;
   saveState();
   renderBlueprint();
   renderMaterials();
@@ -207,28 +141,28 @@ function renderBlueprint() {
   container.innerHTML = "";
   container.classList.toggle("hide-coordinates", !state.settings.showCoordinates);
   container.classList.toggle("no-grid", !state.settings.showGrid);
-
-  const overlay = pokeCenterCells(state.currentLayer);
   const cells = state.layers[state.currentLayer].cells;
 
   for (let y = 0; y < GRID_SIZE; y++) {
     for (let x = 0; x < GRID_SIZE; x++) {
       const cell = document.createElement("button");
       cell.type = "button";
-      cell.className = "cell";
-      cell.setAttribute("aria-label", `Column ${x + 1}, row ${y + 1}`);
-      cell.dataset.col = x + 1;
+      cell.className = "cell empty-ground";
+      cell.setAttribute("aria-label", `Column ${COLUMN_LABELS[x]}, row ${y + 1}`);
+      cell.dataset.col = COLUMN_LABELS[x];
       cell.dataset.row = y + 1;
       if (y === 0) cell.classList.add("coordinate-x");
       if (x === 0) cell.classList.add("coordinate-y");
 
       const value = cells[`${x},${y}`];
-      if (value) cell.classList.add(value);
-      else if (overlay.has(`${x},${y}`)) cell.classList.add("clearance");
-
-      const entranceX = Math.floor(GRID_SIZE / 2);
-      const entranceY = Math.min(GRID_SIZE - 1, Math.floor((GRID_SIZE - state.settings.pokeDepth) / 2) + Number(state.settings.southOffset) + Number(state.settings.pokeDepth));
-      if (state.settings.showPokeCenter && state.currentLayer <= state.settings.roofLayer && x === entranceX && y === entranceY) {
+      if (value) {
+        cell.classList.remove("empty-ground");
+        cell.classList.add(value);
+      } else if (state.settings.showPokeCenter && state.currentLayer === 1 && isCenterCell(x, y)) {
+        cell.classList.remove("empty-ground");
+        cell.classList.add("clearance");
+      } else if (state.settings.showPokeCenter && state.currentLayer === 1 && isEntranceCell(x, y)) {
+        cell.classList.remove("empty-ground");
         cell.classList.add("entrance");
       }
 
@@ -247,18 +181,14 @@ function renderMaterials() {
   $("blockTotal").textContent = `${total} block${total === 1 ? "" : "s"}`;
   $("materialList").innerHTML = "";
 
-  const used = Object.entries(BLOCKS).filter(([key]) => key !== "erase");
-  used.forEach(([key, block]) => {
+  Object.entries(BLOCKS).filter(([key]) => key !== "erase").forEach(([key, block]) => {
     const count = counts[key] || 0;
     const row = document.createElement("div");
     row.className = "material-row";
     const percent = total ? (count / total) * 100 : 0;
     row.innerHTML = `
       <span class="palette-chip" style="background:${block.color}"></span>
-      <div>
-        <div>${block.label}</div>
-        <div class="material-bar"><div style="width:${percent}%"></div></div>
-      </div>
+      <div><div>${block.label}</div><div class="material-bar"><div style="width:${percent}%"></div></div></div>
       <strong>${count}</strong>`;
     $("materialList").appendChild(row);
   });
@@ -282,16 +212,13 @@ function renderLayerMeta() {
   $("layerStatus").textContent = layerData.completed ? "Complete" : "Not complete";
   $("layerStatus").classList.toggle("complete", layerData.completed);
   $("completeLayer").textContent = layerData.completed ? "Mark layer incomplete" : "Mark layer complete";
+  $("lockedFacts").hidden = layer !== 1;
 }
 
 function renderSettings() {
   $("coordinatesToggle").checked = state.settings.showCoordinates;
   $("gridToggle").checked = state.settings.showGrid;
   $("pokeCenterToggle").checked = state.settings.showPokeCenter;
-  $("pokeWidth").value = state.settings.pokeWidth;
-  $("pokeDepth").value = state.settings.pokeDepth;
-  $("roofLayer").value = state.settings.roofLayer;
-  $("southOffset").value = state.settings.southOffset;
 }
 
 function renderAll() {
@@ -331,7 +258,7 @@ $("clearLayer").addEventListener("click", () => {
 });
 
 $("resetLayer").addEventListener("click", () => {
-  if (!confirm(`Restore the original starter pattern for Layer ${state.currentLayer}?`)) return;
+  if (!confirm(`Restore the approved starter pattern for Layer ${state.currentLayer}?`)) return;
   state.layers[state.currentLayer].cells = starterLayer(state.currentLayer);
   saveState();
   renderBlueprint();
@@ -343,26 +270,9 @@ $("layerNotes").addEventListener("input", (event) => {
   saveState();
 });
 
-[
-  ["coordinatesToggle", "showCoordinates"],
-  ["gridToggle", "showGrid"],
-  ["pokeCenterToggle", "showPokeCenter"]
-].forEach(([elementId, setting]) => {
+[["coordinatesToggle", "showCoordinates"], ["gridToggle", "showGrid"], ["pokeCenterToggle", "showPokeCenter"]].forEach(([elementId, setting]) => {
   $(elementId).addEventListener("change", (event) => {
     state.settings[setting] = event.target.checked;
-    saveState();
-    renderBlueprint();
-  });
-});
-
-[
-  ["pokeWidth", "pokeWidth"],
-  ["pokeDepth", "pokeDepth"],
-  ["roofLayer", "roofLayer"],
-  ["southOffset", "southOffset"]
-].forEach(([elementId, setting]) => {
-  $(elementId).addEventListener("change", (event) => {
-    state.settings[setting] = Number(event.target.value);
     saveState();
     renderBlueprint();
   });
@@ -395,7 +305,7 @@ $("importProject").addEventListener("change", async (event) => {
 });
 
 $("resetProject").addEventListener("click", () => {
-  if (!confirm("Reset all 52 layers, progress, notes, and settings? This cannot be undone.")) return;
+  if (!confirm("Reset all 52 layers, progress, notes, and edits? This cannot be undone.")) return;
   state = defaultState();
   saveState();
   renderAll();

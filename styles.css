@@ -301,3 +301,20 @@ footer {
   .status-group { justify-content: flex-start; }
   .palette { grid-template-columns: 1fr 1fr; }
 }
+
+/* Exact 19×19 approved blueprint */
+.blueprint { grid-template-columns: repeat(19, var(--cell-size)); }
+.cell.empty-ground { background: #afc48c; }
+.cell.wood { background: #9a592b; }
+.cell.lightwall { background: #caa873; }
+.cell.gravel { background: #8d8b83; }
+.cell.clearance { background: #ffffff; }
+.cell.entrance { background: #d8d8d8; }
+.cell.entrance::after { content: none; }
+.swatch.lightwall { background: #caa873; }
+.swatch.gravel { background: #8d8b83; }
+.swatch.entrance-key { background: #d8d8d8; }
+.fact-list { display: grid; gap: 8px; }
+.fact-list > div { display: flex; justify-content: space-between; gap: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.fact-list > div:last-child { border-bottom: 0; padding-bottom: 0; }
+.fact-list span { color: var(--muted); }

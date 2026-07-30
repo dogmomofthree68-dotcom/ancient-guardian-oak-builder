@@ -45,7 +45,7 @@
         <h2>View</h2>
         <label class="toggle-row"><input id="coordinatesToggle" type="checkbox" checked /> Show coordinates</label>
         <label class="toggle-row"><input id="gridToggle" type="checkbox" checked /> Show grid lines</label>
-        <label class="toggle-row"><input id="pokeCenterToggle" type="checkbox" checked /> Show Pokécenter footprint</label>
+        <label class="toggle-row"><input id="pokeCenterToggle" type="checkbox" checked /> Show Pokémon Center footprint</label>
       </section>
 
       <section class="control-stack">
@@ -83,16 +83,16 @@
         </div>
 
         <div class="blueprint-wrap">
-          <div id="blueprint" class="blueprint" aria-label="31 by 31 editable block blueprint"></div>
+          <div id="blueprint" class="blueprint" aria-label="19 by 19 editable block blueprint"></div>
         </div>
 
         <div class="legend">
-          <span><i class="swatch wood"></i> Ancient wood</span>
-          <span><i class="swatch darkwood"></i> Dark bark</span>
+          <span><i class="swatch wood"></i> Puffy Tree Pillar</span>
           <span><i class="swatch moss"></i> Moss</span>
-          <span><i class="swatch leaves"></i> Leaves</span>
-          <span><i class="swatch stone"></i> Stone</span>
-          <span><i class="swatch clearance"></i> Pokécenter footprint</span>
+          <span><i class="swatch lightwall"></i> Light Wooden Wall</span>
+          <span><i class="swatch gravel"></i> Gravel</span>
+          <span><i class="swatch clearance"></i> Pokémon Center footprint</span>
+          <span><i class="swatch entrance-key"></i> South entrance</span>
         </div>
       </article>
 
@@ -117,15 +117,16 @@
           <button id="removeComparison" class="ghost">Remove image</button>
         </article>
 
-        <article class="card settings-card">
-          <h2>Pokécenter settings</h2>
-          <div class="settings-grid">
-            <label>Width<input id="pokeWidth" type="number" min="1" max="31" value="10" /></label>
-            <label>Depth<input id="pokeDepth" type="number" min="1" max="31" value="11" /></label>
-            <label>Roof layer<input id="roofLayer" type="number" min="1" max="52" value="8" /></label>
-            <label>South offset<input id="southOffset" type="number" min="-10" max="10" value="3" /></label>
+        <article id="lockedFacts" class="card settings-card">
+          <h2>Layer 1 locked dimensions</h2>
+          <div class="fact-list">
+            <div><span>Tree grid</span><strong>19 × 19</strong></div>
+            <div><span>Pokémon Center</span><strong>10 × 11</strong></div>
+            <div><span>Center footprint</span><strong>E4–N14</strong></div>
+            <div><span>Wall thickness</span><strong>2 blocks</strong></div>
+            <div><span>South entrance</span><strong>I15–J19</strong></div>
+            <div><span>Puffy Tree Pillar</span><strong>162</strong></div>
           </div>
-          <p class="hint">The protected footprint is shown through the roof layer. Building may begin one block above it.</p>
         </article>
       </div>
     </section>

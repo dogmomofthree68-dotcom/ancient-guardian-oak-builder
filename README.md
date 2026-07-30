@@ -26,3 +26,7 @@ Replace these five files in the repository root:
 - README.md
 
 Keep the existing `icons` folder and `manifest.webmanifest`.
+
+
+## Layer 4 view fix (v9)
+When changing layers, the app now automatically returns to normal build view: current-layer blocks on, previous-layer ghost off, and additions/removals on. This prevents a saved changes-only display from making Layer 4 appear to consist entirely of red X markers.

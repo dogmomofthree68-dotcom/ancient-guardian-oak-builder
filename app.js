@@ -1,6 +1,7 @@
 const TOTAL_LAYERS = 52;
 const GRID_SIZE = 19;
 const STORAGE_KEY = "ancientGuardianOakBuilderV3"; // keep existing key so progress is preserved
+const APP_VERSION = 9;
 const COLUMNS = "ABCDEFGHIJKLMNOPQRS".split("");
 const $ = (id) => document.getElementById(id);
 
@@ -245,6 +246,12 @@ function renderAll() { renderMeta(); renderSettings(); renderBlueprint(); render
 function setLayer(value) {
   state.currentLayer = Math.max(1, Math.min(TOTAL_LAYERS, Number(value) || 1));
   state.selected = null;
+  // Always open a selected layer in normal build view. This prevents a
+  // previously configured changes-only view from making the new layer look
+  // like it contains nothing but red removal markers.
+  state.settings.showCurrent = true;
+  state.settings.showPrevious = false;
+  state.settings.showChanges = state.currentLayer > 1;
   save(); renderAll();
 }
 

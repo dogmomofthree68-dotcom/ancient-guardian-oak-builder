@@ -1,5 +1,5 @@
-const CACHE = "oak-builder-v8-layer4";
-const FILES = ["./", "index.html", "styles.css", "app.js?v=8", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png"];
+const CACHE = "oak-builder-v9-layer4-view-fix";
+const FILES = ["./", "index.html", "styles.css", "app.js?v=9", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting()));
 });

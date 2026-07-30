@@ -36,10 +36,14 @@ When changing layers, the app now automatically returns to normal build view: cu
 Current-layer blocks remain brown. Red X markers are now a separate overlay and appear only at the 17 Layer 3 positions omitted on Layer 4.
 
 
-## Version 11 — rotatable 3D preview
+## Layer 5 update
 
-- Adds an offline, touch-friendly 3D preview beneath the blueprint.
-- The preview stacks every authored layer through the currently selected layer.
-- Drag to rotate, use the zoom control, and optionally display the Pokémon Center reserved volume.
-- No external libraries or internet connection are required.
-- Layers 1–4 and all saved progress remain unchanged.
+- Adds the verified Layer 5 blueprint: 107 Puffy Tree Pillars.
+- Shows 7 red-X omissions from Layer 4.
+- Preserves the open entrance courtyard and decorative shelf protrusions.
+- Uses cache version 11 so GitHub Pages loads the new files.
+
+
+## Layer 5 red-X startup fix (v12)
+
+The app now always opens in normal build view: current layer blocks visible, previous layer ghost hidden, and changes visible. This fixes the case where a saved changes-only setting made Layer 5 appear to be entirely red X markers.

@@ -13,25 +13,37 @@ const LAYER_ONE_RANGES = {
   17: [[3,8],[11,16]], 18: [[4,8],[11,15]], 19: [[5,7],[12,14]]
 };
 
-function layerOneCells() {
+const LAYER_THREE_RANGES = {
+  1: [[8,11]], 2: [[4,15]], 3: [[4,15]], 4: [[2,4],[15,17]],
+  5: [[2,4],[15,17]], 6: [[2,4],[15,17]], 7: [[2,4],[15,17]],
+  8: [[2,4],[15,17]], 9: [[3,4],[15,17]], 10: [[2,4],[15,16],[18,18]],
+  11: [[2,4],[15,17]], 12: [[2,4],[15,17]], 13: [[3,4],[15,16]],
+  14: [[3,4],[15,16]], 15: [[4,8],[11,15]], 16: [[4,8],[11,15]],
+  17: [[4,8],[11,15]], 18: [[5,8],[11,14]], 19: [[6,7],[12,13]]
+};
+
+function cellsFromRanges(ranges) {
   const cells = {};
-  Object.entries(LAYER_ONE_RANGES).forEach(([row, ranges]) => {
-    ranges.forEach(([start, end]) => {
+  Object.entries(ranges).forEach(([row, rowRanges]) => {
+    rowRanges.forEach(([start, end]) => {
       for (let col = start; col <= end; col++) cells[`${col - 1},${Number(row) - 1}`] = "wood";
     });
   });
   return cells;
 }
 
+function layerOneCells() { return cellsFromRanges(LAYER_ONE_RANGES); }
+function layerThreeCells() { return cellsFromRanges(LAYER_THREE_RANGES); }
+
 function freshState() {
   const layers = {};
   for (let i = 1; i <= TOTAL_LAYERS; i++) {
-    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : {}, completed: false, notes: "" };
+    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : i === 3 ? layerThreeCells() : {}, completed: false, notes: "" };
   }
   return {
     currentLayer: 1,
     selected: null,
-    settings: { coordinates: true, grid: true, center: true },
+    settings: { coordinates: true, grid: true, center: true, changesOnly: false },
     layers
   };
 }
@@ -45,6 +57,7 @@ function loadState() {
     // Layer 2 is a locked verified blueprint. Always restore its approved
     // 162-block pattern while preserving completion status and notes.
     mergedLayers[2] = { ...base.layers[2], ...(mergedLayers[2] || {}), cells: layerOneCells() };
+    mergedLayers[3] = { ...base.layers[3], ...(mergedLayers[3] || {}), cells: layerThreeCells() };
     return {
       ...base,
       ...saved,
@@ -61,18 +74,26 @@ const centerCell = (x,y) => x >= 4 && x <= 13 && y >= 3 && y <= 13;
 const entranceCell = (x,y) => x >= 8 && x <= 9 && y >= 14 && y <= 18;
 
 function cellType(x,y) {
-  if (state.layers[state.currentLayer].cells[`${x},${y}`]) return "wood";
-  if (state.currentLayer <= 2 && state.settings.center && entranceCell(x,y)) return "entrance";
-  if (state.currentLayer <= 2 && state.settings.center && centerCell(x,y)) return "clearance";
+  const key = `${x},${y}`;
+  const currentHas = Boolean(state.layers[state.currentLayer].cells[key]);
+  if (state.settings.changesOnly && state.currentLayer > 1) {
+    const previousHas = Boolean(state.layers[state.currentLayer - 1].cells[key]);
+    if (currentHas && !previousHas) return "added";
+    if (!currentHas && previousHas) return "removed";
+    if (currentHas && previousHas) return "unchanged";
+  }
+  if (currentHas) return "wood";
+  if (state.currentLayer <= 3 && state.settings.center && entranceCell(x,y)) return "entrance";
+  if (state.currentLayer <= 3 && state.settings.center && centerCell(x,y)) return "clearance";
   return "ground";
 }
 
 function materialName(type) {
-  return ({wood:"Puffy Tree Pillar", clearance:"Reserved Pokémon Center", entrance:"South entrance opening", ground:"Empty ground"})[type];
+  return ({wood:"Puffy Tree Pillar", added:"Add Puffy Tree Pillar", removed:"Do not place a block here", unchanged:"Puffy Tree Pillar (same as prior layer)", clearance:"Reserved Pokémon Center", entrance:"South entrance opening", ground:"Empty ground"})[type];
 }
 
 function statusName(type) {
-  return type === "wood" ? "Place block" : type === "ground" ? "Leave empty" : "Keep clear";
+  return ["wood","added","unchanged"].includes(type) ? "Place block" : type === "removed" ? "Omit on this layer" : type === "ground" ? "Leave empty" : "Keep clear";
 }
 
 function renderBlueprint() {
@@ -138,7 +159,9 @@ function renderSummary() {
     ? [["Grid","19 × 19"],["Center","E4–N14 (10 × 11)"],["Wall","2 blocks thick"],["Entrance","I15–J19"],["Material","Puffy Tree Pillar"]]
     : state.currentLayer === 2
       ? [["Grid","19 × 19"],["Placement","Directly above Layer 1"],["Changes","None"],["Entrance","I15–J19 remains open"],["Material","Puffy Tree Pillar"]]
-      : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
+      : state.currentLayer === 3
+        ? [["Grid","19 × 19"],["Placement","Above Layer 2"],["Blocks","131 Puffy Tree Pillars"],["Omitted from Layer 2","31 positions"],["Front","Courtyard remains open"]]
+        : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
   $("summaryFacts").innerHTML = facts.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
 }
 
@@ -153,12 +176,16 @@ function renderMeta() {
     ? "Exact foundation blueprint"
     : layer === 2
       ? "Verified matching footprint"
-      : "Awaiting verified blueprint";
+      : layer === 3
+        ? "Root taper and open courtyard"
+        : "Awaiting verified blueprint";
   $("layerGuidance").textContent = layer === 1
     ? "Build the approved 19×19 ground-level footprint. Keep E4–N14 empty for the Pokémon Center and I15–J19 open for the south entrance."
     : layer === 2
       ? "Place one Puffy Tree Pillar directly above every Layer 1 tree block. Do not add or remove blocks. Keep the Pokémon Center space and south entrance open."
-      : "This layer remains blank until we verify its shape in Pokopia.";
+      : layer === 3
+        ? "Build 131 Puffy Tree Pillars above Layer 2. Omit the 31 squares marked in Changes Only view. This begins the root taper while keeping the Pokémon Center entrance and front courtyard fully open."
+        : "This layer remains blank until we verify its shape in Pokopia.";
   $("layerNotes").value = data.notes || "";
   $("layerStatus").textContent = data.completed ? "Complete" : "Not complete";
   $("layerStatus").classList.toggle("complete", data.completed);
@@ -175,6 +202,8 @@ function renderSettings() {
   $("coordinatesToggle").checked = state.settings.coordinates;
   $("gridToggle").checked = state.settings.grid;
   $("pokeCenterToggle").checked = state.settings.center;
+  $("changesToggle").checked = state.settings.changesOnly;
+  $("changesToggle").disabled = state.currentLayer === 1;
 }
 
 function renderAll() { renderMeta(); renderSettings(); renderBlueprint(); renderInspector(); renderSummary(); renderProgress(); }
@@ -189,7 +218,7 @@ $("nextLayer").addEventListener("click", () => setLayer(state.currentLayer + 1))
 $("layerRange").addEventListener("input", e => setLayer(e.target.value));
 $("layerNumber").addEventListener("change", e => setLayer(e.target.value));
 
-[["coordinatesToggle","coordinates"],["gridToggle","grid"],["pokeCenterToggle","center"]].forEach(([id,key]) => {
+[["coordinatesToggle","coordinates"],["gridToggle","grid"],["pokeCenterToggle","center"],["changesToggle","changesOnly"]].forEach(([id,key]) => {
   $(id).addEventListener("change", e => { state.settings[key] = e.target.checked; save(); renderBlueprint(); renderInspector(); });
 });
 
@@ -200,7 +229,7 @@ $("completeLayer").addEventListener("click", () => {
 
 $("resetLayer").addEventListener("click", () => {
   if (!confirm(`Restore the approved pattern for Layer ${state.currentLayer}?`)) return;
-  state.layers[state.currentLayer].cells = state.currentLayer <= 2 ? layerOneCells() : {};
+  state.layers[state.currentLayer].cells = state.currentLayer <= 2 ? layerOneCells() : state.currentLayer === 3 ? layerThreeCells() : {};
   state.selected = null;
   save(); renderAll();
 });
@@ -230,7 +259,11 @@ $("importProject").addEventListener("change", async e => {
   try {
     const incoming = JSON.parse(await file.text());
     if (!incoming.layers) throw new Error();
-    state = incoming; save(); renderAll(); alert("Progress imported.");
+    const base = freshState();
+    state = { ...base, ...incoming, settings: { ...base.settings, ...(incoming.settings || {}) }, layers: { ...base.layers, ...incoming.layers } };
+    state.layers[2] = { ...state.layers[2], cells: layerOneCells() };
+    state.layers[3] = { ...state.layers[3], cells: layerThreeCells() };
+    save(); renderAll(); alert("Progress imported.");
   } catch { alert("That progress file could not be imported."); }
   e.target.value = "";
 });

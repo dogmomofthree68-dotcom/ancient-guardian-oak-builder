@@ -1,26 +1,21 @@
-# Ancient Guardian Oak Builder - Layers 1-2 Blueprint Edition
+# Ancient Guardian Oak Builder - Layer 3 Open Courtyard Edition
 
-This release adds the approved Layer 2 blueprint while preserving existing app progress.
+This release adds the approved Layer 3 root taper and a Changes Only comparison view while preserving saved progress.
 
-## Layer 2 specification
+## Layer 3 specification
 - 19 x 19 grid
-- 162 Puffy Tree Pillars
-- Same footprint as Layer 1
-- Place one block directly above every Layer 1 tree block
-- No additions or removals
+- 131 Puffy Tree Pillars
+- Build directly above Layer 2
+- Omit 31 Layer 2 positions to begin the root taper
+- No new outward additions
 - Keep E4-N14 clear for the Pokemon Center
-- Keep I15-J19 open for the south entrance
+- Keep I15-J19 open for the south entrance and front courtyard
 
-## Included features
-- Exact Layer 1 and Layer 2 blueprints
-- Perfect square grid cells
-- A-S column labels and 1-19 row labels
-- Tap-to-inspect coordinates and materials
-- Layer-specific guidance and summaries
-- Build Focus mode for iPad
-- Layer completion tracking, notes, and progress export/import
-- Automatic migration that fills Layer 2 without erasing saved notes or completion status
-- Updated offline cache
+## New feature: Changes Only
+Turn on Changes Only while viewing Layer 3:
+- Muted tan squares remain the same as Layer 2
+- Red X squares were present on Layer 2 but should not receive a Layer 3 block
+- Brown squares would indicate additions (Layer 3 has none)
 
 ## GitHub update
 Replace these files in the repository root:

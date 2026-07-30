@@ -1,7 +1,7 @@
 const TOTAL_LAYERS = 52;
 const GRID_SIZE = 19;
 const STORAGE_KEY = "ancientGuardianOakBuilderV3"; // keep existing key so progress is preserved
-const APP_VERSION = 12;
+const APP_VERSION = 13;
 const COLUMNS = "ABCDEFGHIJKLMNOPQRS".split("");
 const $ = (id) => document.getElementById(id);
 
@@ -121,7 +121,9 @@ function cellDisplay(x,y) {
   // Base view: current-layer blocks always remain ordinary brown build blocks.
   // The previous layer is only a gray ghost when explicitly enabled and when
   // there is no current block in that square.
-  if (state.settings.showCurrent && currentHas) {
+  // A blueprint block must always be visible. Comparison controls may add
+  // reference overlays, but they can never hide the current layer pattern.
+  if (currentHas) {
     primary = "wood";
     classes.push("wood");
   } else if (state.settings.showPrevious && previousHas) {
@@ -282,7 +284,8 @@ function renderSettings() {
   $("coordinatesToggle").checked = state.settings.coordinates;
   $("gridToggle").checked = state.settings.grid;
   $("pokeCenterToggle").checked = state.settings.center;
-  $("currentToggle").checked = state.settings.showCurrent;
+  $("currentToggle").checked = true;
+  $("currentToggle").disabled = true;
   $("previousToggle").checked = state.settings.showPrevious;
   $("changesToggle").checked = state.settings.showChanges;
   $("previousToggle").disabled = state.currentLayer === 1;
@@ -307,7 +310,7 @@ $("nextLayer").addEventListener("click", () => setLayer(state.currentLayer + 1))
 $("layerRange").addEventListener("input", e => setLayer(e.target.value));
 $("layerNumber").addEventListener("change", e => setLayer(e.target.value));
 
-[["coordinatesToggle","coordinates"],["gridToggle","grid"],["pokeCenterToggle","center"],["currentToggle","showCurrent"],["previousToggle","showPrevious"],["changesToggle","showChanges"]].forEach(([id,key]) => {
+[["coordinatesToggle","coordinates"],["gridToggle","grid"],["pokeCenterToggle","center"],["previousToggle","showPrevious"],["changesToggle","showChanges"]].forEach(([id,key]) => {
   $(id).addEventListener("change", e => { state.settings[key] = e.target.checked; save(); renderBlueprint(); renderInspector(); });
 });
 

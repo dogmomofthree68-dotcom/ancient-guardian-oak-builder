@@ -10,124 +10,25 @@
   <title>Ancient Guardian Oak Builder</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles-v14.css" />
+  <link rel="stylesheet" href="styles.css?v=21" />
 </head>
 <body>
-  <header class="topbar">
-    <div>
-      <p class="eyebrow">Pokopia blueprint book</p>
-      <h1>Ancient Guardian Oak Builder</h1>
-    </div>
-    <div class="top-actions">
-      <span class="version-label">v14</span>
-      <button id="focusMode" class="secondary">Build Focus</button>
-      <button id="installButton" class="secondary hidden">Install App</button>
-    </div>
-  </header>
-
+  <header class="topbar"><div><p class="eyebrow">Pokopia blueprint book</p><h1>Ancient Guardian Oak Builder</h1></div><div class="top-actions"><span class="version-label">v2.1</span><button id="focusMode" class="secondary">Build Focus</button><button id="installButton" class="secondary hidden">Install App</button></div></header>
   <main class="layout">
     <aside class="panel sidebar">
-      <section>
-        <div class="row between"><h2>Project progress</h2><strong id="progressLabel">0 / 52</strong></div>
-        <div class="progress-track"><div id="progressBar"></div></div>
-      </section>
-
-      <section class="stack">
-        <label for="layerRange">Current layer</label>
-        <input id="layerRange" type="range" min="1" max="52" value="1" />
-        <div class="layer-nav">
-          <button id="previousLayer">←</button>
-          <input id="layerNumber" type="number" min="1" max="52" value="1" aria-label="Layer number" />
-          <button id="nextLayer">→</button>
-        </div>
-      </section>
-
-      <section class="stack">
-        <h2>Blueprint view</h2>
-        <label class="check"><input id="coordinatesToggle" type="checkbox" checked /> Coordinates</label>
-        <label class="check"><input id="gridToggle" type="checkbox" checked /> Grid lines</label>
-        <label class="check"><input id="pokeCenterToggle" type="checkbox" checked /> Reserved center and entrance</label>
-        <div class="comparison-controls">
-          <strong>Layer comparison</strong>
-          <label class="check"><input id="currentToggle" type="checkbox" checked /> Current layer blocks (always shown)</label>
-          <label class="check"><input id="previousToggle" type="checkbox" /> Previous layer ghost</label>
-          <label class="check"><input id="changesToggle" type="checkbox" checked /> Additions and removals</label>
-          <p class="control-help">For changes only, turn off Current layer and Previous layer, leaving Additions and removals on.</p>
-        </div>
-      </section>
-
-      <section class="stack">
-        <h2>Build status</h2>
-        <button id="completeLayer" class="primary">Mark layer complete</button>
-        <button id="resetLayer">Restore approved layer</button>
-      </section>
-
-      <section class="stack">
-        <h2>Save</h2>
-        <button id="exportProject">Export progress</button>
-        <label class="file-button">Import progress<input id="importProject" type="file" accept=".json,application/json" /></label>
-      </section>
+      <section><div class="row between"><h2>Project progress</h2><strong id="progressLabel">0 / 52</strong></div><div class="progress-track"><div id="progressBar"></div></div></section>
+      <section class="stack"><label for="layerRange">Current layer</label><input id="layerRange" type="range" min="1" max="52" value="1" /><div class="layer-nav"><button id="previousLayer">←</button><input id="layerNumber" type="number" min="1" max="52" value="1" aria-label="Layer number" /><button id="nextLayer">→</button></div></section>
+      <section class="stack"><h2>Blueprint view</h2><label class="check"><input id="coordinatesToggle" type="checkbox" checked /> Coordinates</label><label class="check"><input id="gridToggle" type="checkbox" checked /> Grid lines</label><label class="check"><input id="pokeCenterToggle" type="checkbox" checked /> Reserved center and entrance</label><div class="comparison-controls"><strong>Layer comparison</strong><label class="check"><input id="currentToggle" type="checkbox" checked /> Current layer blocks (always shown)</label><label class="check"><input id="previousToggle" type="checkbox" /> Previous layer ghost</label><label class="check"><input id="changesToggle" type="checkbox" checked /> Additions and removals</label></div></section>
+      <section class="stack"><h2>Build status</h2><button id="completeLayer" class="primary">Mark layer complete</button><button id="resetLayer">Restore approved layer</button></section>
+      <section class="stack"><h2>Save</h2><button id="exportProject">Export progress</button><label class="file-button">Import progress<input id="importProject" type="file" accept=".json,application/json" /></label></section>
     </aside>
-
     <section class="workspace">
-      <article class="panel blueprint-panel">
-        <div class="blueprint-heading">
-          <div>
-            <p id="phaseLabel" class="eyebrow"></p>
-            <h2 id="layerTitle">Layer 1</h2>
-            <p id="layerGuidance" class="guidance"></p>
-          </div>
-          <div class="badges">
-            <span id="layerStatus" class="badge">Not complete</span>
-            <span class="badge">North ↑</span>
-          </div>
-        </div>
-
-        <div class="grid-shell">
-          <div class="north-label">NORTH ↑</div>
-          <div id="blueprint" class="blueprint" aria-label="19 by 19 Ancient Guardian Oak blueprint"></div>
-        </div>
-
-        <div class="legend" aria-label="Blueprint key">
-          <span><i class="swatch wood"></i>Current layer block</span>
-          <span><i class="swatch added"></i>New block</span>
-          <span><i class="swatch removed"></i>Removed above prior layer</span>
-          <span><i class="swatch previous"></i>Previous layer ghost</span>
-          <span><i class="swatch clearance"></i>Pokémon Center footprint</span>
-          <span><i class="swatch entrance"></i>South entrance</span>
-          <span><i class="swatch ground"></i>Empty ground</span>
-        </div>
-      </article>
-
-      <div class="info-grid">
-        <article class="panel inspector">
-          <h2>Selected square</h2>
-          <div class="coordinate-value" id="selectedCoordinate">Tap a square</div>
-          <dl>
-            <div><dt>Material</dt><dd id="selectedMaterial">—</dd></div>
-            <div><dt>Status</dt><dd id="selectedStatus">—</dd></div>
-          </dl>
-        </article>
-
-        <article class="panel summary">
-          <div class="row between"><h2>Layer summary</h2><strong id="blockTotal">162 blocks</strong></div>
-          <dl id="summaryFacts"></dl>
-        </article>
-
-        <article class="panel notes-panel">
-          <h2>Layer notes</h2>
-          <textarea id="layerNotes" rows="6" placeholder="Add a reminder or correction for this layer…"></textarea>
-        </article>
-      </div>
+      <article class="panel blueprint-panel"><div class="blueprint-heading"><div><p id="phaseLabel" class="eyebrow"></p><h2 id="layerTitle">Layer 1</h2><p id="layerGuidance" class="guidance"></p></div><div class="badges"><span id="layerStatus" class="badge">Not complete</span><span class="badge">North ↑</span></div></div><div class="grid-shell"><div class="north-label">NORTH ↑</div><div id="blueprint" class="blueprint" aria-label="19 by 19 Ancient Guardian Oak blueprint"></div></div><div class="legend"><span><i class="swatch wood"></i>Current layer block</span><span><i class="swatch added"></i>New block</span><span><i class="swatch removed"></i>Removed above prior layer</span><span><i class="swatch previous"></i>Previous layer ghost</span><span><i class="swatch clearance"></i>Pokémon Center footprint</span><span><i class="swatch entrance"></i>South entrance</span></div></article>
+      <article class="panel preview-panel"><div class="preview-heading"><div><p class="eyebrow">Built-so-far model</p><h2>Rotatable 3D Preview</h2><p class="guidance">Shows every authored layer from Layer 1 through the selected layer. Drag directly on the preview to rotate.</p></div><div class="preview-controls"><label>Zoom <input id="previewZoom" type="range" min="0.65" max="1.6" step="0.05" value="1"></label><label class="check"><input id="previewCenterToggle" type="checkbox" checked> Pokémon Center volume</label><button id="previewReset">Reset view</button></div></div><canvas id="previewCanvas" aria-label="Rotatable three-dimensional preview of the Ancient Guardian Oak layers"></canvas></article>
+      <div class="info-grid"><article class="panel inspector"><h2>Selected square</h2><div class="coordinate-value" id="selectedCoordinate">Tap a square</div><dl><div><dt>Material</dt><dd id="selectedMaterial">—</dd></div><div><dt>Status</dt><dd id="selectedStatus">—</dd></div></dl></article><article class="panel summary"><div class="row between"><h2>Layer summary</h2><strong id="blockTotal">162 blocks</strong></div><dl id="summaryFacts"></dl></article><article class="panel notes-panel"><h2>Layer notes</h2><textarea id="layerNotes" rows="6" placeholder="Add a reminder or correction for this layer…"></textarea></article></div>
     </section>
   </main>
-
-  <div id="focusToolbar" class="focus-toolbar hidden">
-    <button id="exitFocus">Exit Focus</button>
-    <strong id="focusLayer">Layer 1</strong>
-    <span id="focusCount">162 blocks</span>
-  </div>
-
-  <script src="app-v14.js"></script>
+  <div id="focusToolbar" class="focus-toolbar hidden"><button id="exitFocus">Exit Focus</button><strong id="focusLayer">Layer 1</strong><span id="focusCount">162 blocks</span></div>
+  <script src="app.js?v=21"></script>
 </body>
 </html>

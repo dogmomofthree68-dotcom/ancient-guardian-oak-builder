@@ -1,31 +1,30 @@
-# Ancient Guardian Oak Builder — Layer 5 (v14)
+# Ancient Guardian Oak Builder v2.1
 
-This release contains the approved Layer 5 blueprint and uses new asset filenames so an older cached app cannot hide the Layer 5 blocks.
+This is the cleaned permanent base for the Pokopia Ancient Guardian Oak build.
 
-## Layer 5 blueprint
-- 19 × 19 grid
-- 107 Puffy Tree Pillars
-- Build directly above Layer 4
-- Omit 7 Layer 4 positions, shown with red X markers
-- Keep the Pokémon Center courtyard and south entrance open
-- Preserve the small decorative shelf protrusions
-- Begin a gentle taper while keeping the left side slightly heavier
+## Included blueprints
+- Layer 1: approved foundation
+- Layer 2: approved matching footprint
+- Layer 3: approved root taper and open courtyard
+- Layer 4: approved lower-trunk shaping
+- Layer 5: 107-block gentle taper
 
-## What v14 fixes
-- Brown Layer 5 blocks are always visible.
-- Red X markers appear only where a Layer 4 block stops.
-- The app now loads `app-v14.js` and `styles-v14.css`, bypassing stale copies of the older files.
-- The app clears old service-worker caches and installs `sw-v14.js`.
-- The version label at the top reads `v14`.
+## v2.1 features
+- Stable filenames: `app.js`, `styles.css`, and `sw.js`
+- Existing saved progress is preserved
+- Current layer blocks are always visible
+- Optional previous-layer ghost and change overlays
+- Rotatable canvas-based 3D preview showing Layers 1 through the selected authored layer
+- Touch drag rotation, zoom control, reset button, and optional Pokémon Center reserved volume
+- Offline caching after the first successful load
 
-## GitHub update
-Upload all five files from this package to the repository root:
+## GitHub upload
+Upload these five files to the repository root:
 - `index.html`
-- `app-v14.js`
-- `styles-v14.css`
-- `sw-v14.js`
+- `app.js`
+- `styles.css`
+- `sw.js`
 - `README.md`
 
 Keep the existing `icons` folder and `manifest.webmanifest`.
-
-The older `app.js`, `styles.css`, and `sw.js` files may remain in the repository; v14 no longer references them.
+After v2.1 loads correctly, old versioned files such as `app-v14.js`, `styles-v14.css`, and `sw-v14.js` can be deleted.

@@ -43,7 +43,7 @@ function freshState() {
   return {
     currentLayer: 1,
     selected: null,
-    settings: { coordinates: true, grid: true, center: true, changesOnly: false },
+    settings: { coordinates: true, grid: true, center: true, showCurrent: true, showPrevious: false, showChanges: true },
     layers
   };
 }
@@ -58,10 +58,19 @@ function loadState() {
     // 162-block pattern while preserving completion status and notes.
     mergedLayers[2] = { ...base.layers[2], ...(mergedLayers[2] || {}), cells: layerOneCells() };
     mergedLayers[3] = { ...base.layers[3], ...(mergedLayers[3] || {}), cells: layerThreeCells() };
+    const savedSettings = saved.settings || {};
+    const migratedSettings = { ...base.settings, ...savedSettings };
+    // Migrate the old single “Changes Only” checkbox to the new comparison controls.
+    if (Object.prototype.hasOwnProperty.call(savedSettings, "changesOnly")) {
+      migratedSettings.showCurrent = !savedSettings.changesOnly;
+      migratedSettings.showPrevious = false;
+      migratedSettings.showChanges = true;
+      delete migratedSettings.changesOnly;
+    }
     return {
       ...base,
       ...saved,
-      settings: { ...base.settings, ...(saved.settings || {}) },
+      settings: migratedSettings,
       layers: mergedLayers
     };
   } catch { return freshState(); }
@@ -76,24 +85,30 @@ const entranceCell = (x,y) => x >= 8 && x <= 9 && y >= 14 && y <= 18;
 function cellType(x,y) {
   const key = `${x},${y}`;
   const currentHas = Boolean(state.layers[state.currentLayer].cells[key]);
-  if (state.settings.changesOnly && state.currentLayer > 1) {
-    const previousHas = Boolean(state.layers[state.currentLayer - 1].cells[key]);
+  const hasPreviousLayer = state.currentLayer > 1;
+  const previousHas = hasPreviousLayer && Boolean(state.layers[state.currentLayer - 1].cells[key]);
+
+  // Changes are always drawn first so removals can never disappear beneath
+  // the Pokémon Center overlay or the previous-layer ghost.
+  if (state.settings.showChanges && hasPreviousLayer) {
     if (currentHas && !previousHas) return "added";
     if (!currentHas && previousHas) return "removed";
-    if (currentHas && previousHas) return "unchanged";
   }
-  if (currentHas) return "wood";
+
+  if (state.settings.showCurrent && currentHas) return "wood";
+  if (state.settings.showPrevious && previousHas) return "previous";
+
   if (state.currentLayer <= 3 && state.settings.center && entranceCell(x,y)) return "entrance";
   if (state.currentLayer <= 3 && state.settings.center && centerCell(x,y)) return "clearance";
   return "ground";
 }
 
 function materialName(type) {
-  return ({wood:"Puffy Tree Pillar", added:"Add Puffy Tree Pillar", removed:"Do not place a block here", unchanged:"Puffy Tree Pillar (same as prior layer)", clearance:"Reserved Pokémon Center", entrance:"South entrance opening", ground:"Empty ground"})[type];
+  return ({wood:"Puffy Tree Pillar on current layer", added:"Add Puffy Tree Pillar", removed:"Block existed below — do not place one here", previous:"Previous-layer block (reference only)", clearance:"Reserved Pokémon Center", entrance:"South entrance opening", ground:"Empty ground"})[type];
 }
 
 function statusName(type) {
-  return ["wood","added","unchanged"].includes(type) ? "Place block" : type === "removed" ? "Omit on this layer" : type === "ground" ? "Leave empty" : "Keep clear";
+  return ["wood","added"].includes(type) ? "Place block" : type === "removed" ? "Omit on this layer" : type === "previous" ? "Reference only — already built below" : type === "ground" ? "Leave empty" : "Keep clear";
 }
 
 function renderBlueprint() {
@@ -184,7 +199,7 @@ function renderMeta() {
     : layer === 2
       ? "Place one Puffy Tree Pillar directly above every Layer 1 tree block. Do not add or remove blocks. Keep the Pokémon Center space and south entrance open."
       : layer === 3
-        ? "Build 131 Puffy Tree Pillars above Layer 2. Omit the 31 squares marked in Changes Only view. This begins the root taper while keeping the Pokémon Center entrance and front courtyard fully open."
+        ? "Build 131 Puffy Tree Pillars above Layer 2. Red X squares show the 31 Layer 2 positions that stop here—do not place blocks above them. Brown squares are Layer 3 blocks."
         : "This layer remains blank until we verify its shape in Pokopia.";
   $("layerNotes").value = data.notes || "";
   $("layerStatus").textContent = data.completed ? "Complete" : "Not complete";
@@ -202,7 +217,10 @@ function renderSettings() {
   $("coordinatesToggle").checked = state.settings.coordinates;
   $("gridToggle").checked = state.settings.grid;
   $("pokeCenterToggle").checked = state.settings.center;
-  $("changesToggle").checked = state.settings.changesOnly;
+  $("currentToggle").checked = state.settings.showCurrent;
+  $("previousToggle").checked = state.settings.showPrevious;
+  $("changesToggle").checked = state.settings.showChanges;
+  $("previousToggle").disabled = state.currentLayer === 1;
   $("changesToggle").disabled = state.currentLayer === 1;
 }
 
@@ -218,7 +236,7 @@ $("nextLayer").addEventListener("click", () => setLayer(state.currentLayer + 1))
 $("layerRange").addEventListener("input", e => setLayer(e.target.value));
 $("layerNumber").addEventListener("change", e => setLayer(e.target.value));
 
-[["coordinatesToggle","coordinates"],["gridToggle","grid"],["pokeCenterToggle","center"],["changesToggle","changesOnly"]].forEach(([id,key]) => {
+[["coordinatesToggle","coordinates"],["gridToggle","grid"],["pokeCenterToggle","center"],["currentToggle","showCurrent"],["previousToggle","showPrevious"],["changesToggle","showChanges"]].forEach(([id,key]) => {
   $(id).addEventListener("change", e => { state.settings[key] = e.target.checked; save(); renderBlueprint(); renderInspector(); });
 });
 
@@ -260,7 +278,15 @@ $("importProject").addEventListener("change", async e => {
     const incoming = JSON.parse(await file.text());
     if (!incoming.layers) throw new Error();
     const base = freshState();
-    state = { ...base, ...incoming, settings: { ...base.settings, ...(incoming.settings || {}) }, layers: { ...base.layers, ...incoming.layers } };
+    const incomingSettings = incoming.settings || {};
+    const migratedSettings = { ...base.settings, ...incomingSettings };
+    if (Object.prototype.hasOwnProperty.call(incomingSettings, "changesOnly")) {
+      migratedSettings.showCurrent = !incomingSettings.changesOnly;
+      migratedSettings.showPrevious = false;
+      migratedSettings.showChanges = true;
+      delete migratedSettings.changesOnly;
+    }
+    state = { ...base, ...incoming, settings: migratedSettings, layers: { ...base.layers, ...incoming.layers } };
     state.layers[2] = { ...state.layers[2], cells: layerOneCells() };
     state.layers[3] = { ...state.layers[3], cells: layerThreeCells() };
     save(); renderAll(); alert("Progress imported.");

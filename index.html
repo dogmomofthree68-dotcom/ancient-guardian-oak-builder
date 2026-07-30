@@ -46,7 +46,13 @@
         <label class="check"><input id="coordinatesToggle" type="checkbox" checked /> Coordinates</label>
         <label class="check"><input id="gridToggle" type="checkbox" checked /> Grid lines</label>
         <label class="check"><input id="pokeCenterToggle" type="checkbox" checked /> Reserved center and entrance</label>
-        <label class="check"><input id="changesToggle" type="checkbox" /> Changes Only</label>
+        <div class="comparison-controls">
+          <strong>Layer comparison</strong>
+          <label class="check"><input id="currentToggle" type="checkbox" checked /> Current layer blocks</label>
+          <label class="check"><input id="previousToggle" type="checkbox" /> Previous layer ghost</label>
+          <label class="check"><input id="changesToggle" type="checkbox" checked /> Additions and removals</label>
+          <p class="control-help">For changes only, turn off Current layer and Previous layer, leaving Additions and removals on.</p>
+        </div>
       </section>
 
       <section class="stack">
@@ -82,8 +88,10 @@
         </div>
 
         <div class="legend" aria-label="Blueprint key">
-          <span><i class="swatch wood"></i>Puffy Tree Pillar</span>
-          <span><i class="swatch removed"></i>Omit from prior layer</span>
+          <span><i class="swatch wood"></i>Current layer block</span>
+          <span><i class="swatch added"></i>New block</span>
+          <span><i class="swatch removed"></i>Removed above prior layer</span>
+          <span><i class="swatch previous"></i>Previous layer ghost</span>
           <span><i class="swatch clearance"></i>Pokémon Center footprint</span>
           <span><i class="swatch entrance"></i>South entrance</span>
           <span><i class="swatch ground"></i>Empty ground</span>
@@ -119,6 +127,6 @@
     <span id="focusCount">162 blocks</span>
   </div>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>

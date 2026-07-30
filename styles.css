@@ -11,8 +11,9 @@
   --clearance: #fffefa;
   --entrance: #c5c5c5;
   --ground: #c9dfbd;
-  --removed: #f3d2cd;
-  --unchanged: #d8c8b9;
+  --removed: #ffd8d2;
+  --added: #9ed48d;
+  --previous: #d8d3ca;
   --shadow: 0 12px 34px rgba(55, 46, 35, .12);
 }
 * { box-sizing: border-box; }
@@ -83,6 +84,9 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 textarea { resize: vertical; line-height: 1.4; }
 .check { min-height: 34px; display: flex; gap: 9px; align-items: center; }
 .check input { width: 20px; height: 20px; accent-color: var(--accent); }
+.comparison-controls { margin-top: 7px; padding: 11px; border: 1px solid #d6cec1; border-radius: 10px; background: #f7f3eb; display: grid; gap: 5px; }
+.comparison-controls > strong { font-size: .9rem; margin-bottom: 2px; }
+.control-help { margin: 2px 0 0; color: var(--muted); font-size: .76rem; line-height: 1.35; }
 .file-button { display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .file-button input { display: none; }
 .workspace { min-width: 0; display: grid; gap: 16px; }
@@ -124,8 +128,11 @@ textarea { resize: vertical; line-height: 1.4; }
   background: var(--ground);
   position: relative;
 }
-.cell.wood, .cell.added { background: var(--wood); }
-.cell.unchanged { background: var(--unchanged); }
+.cell.wood { background: var(--wood); }
+.cell.added { background: var(--added); }
+.cell.added::after { content: "+"; position: absolute; inset: 0; display: grid; place-items: center; color: #183d15; font-size: clamp(16px, 2vw, 25px); font-weight: 1000; }
+.cell.previous { background: var(--previous); }
+.cell.previous::after { content: ""; position: absolute; inset: 22%; border: 2px dashed #777168; border-radius: 2px; }
 .cell.removed { background: var(--removed); }
 .cell.removed::before, .cell.removed::after {
   content: ""; position: absolute; left: 15%; right: 15%; top: 48%; height: 3px; background: #9b2e25; border-radius: 2px;
@@ -148,6 +155,8 @@ textarea { resize: vertical; line-height: 1.4; }
 .legend span { display: flex; align-items: center; gap: 7px; }
 .swatch { width: 18px; height: 18px; border: 1px solid #514e47; }
 .swatch.wood { background: var(--wood); }
+.swatch.added { background: var(--added); }
+.swatch.previous { background: var(--previous); border-style: dashed; }
 .swatch.removed { background: var(--removed); position: relative; }
 .swatch.clearance { background: var(--clearance); }
 .swatch.entrance { background: var(--entrance); }

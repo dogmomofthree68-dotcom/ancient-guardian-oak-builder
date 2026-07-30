@@ -26,3 +26,9 @@ Replace these files in the repository root:
 - README.md
 
 Keep the existing `icons` folder and `manifest.webmanifest`.
+
+
+## Layer comparison fix (v7)
+- Current layer, previous layer ghost, and additions/removals are independent controls.
+- Layer 3 now shows all 131 current blocks plus 31 red-X removal positions by default.
+- Turning off Current layer and Previous layer leaves a true changes-only view.

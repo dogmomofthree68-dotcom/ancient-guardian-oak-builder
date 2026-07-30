@@ -22,6 +22,15 @@ const LAYER_THREE_RANGES = {
   17: [[4,8],[11,15]], 18: [[5,8],[11,14]], 19: [[6,7],[12,13]]
 };
 
+const LAYER_FOUR_RANGES = {
+  1: [[8,11]], 2: [[5,14]], 3: [[4,15]], 4: [[2,4],[15,17]],
+  5: [[3,4],[15,17]], 6: [[2,4],[15,17]], 7: [[3,4],[15,17]],
+  8: [[2,4],[15,17]], 9: [[3,4],[15,17]], 10: [[2,4],[15,16],[18,18]],
+  11: [[3,4],[15,17]], 12: [[2,4],[15,17]], 13: [[3,4],[15,16]],
+  14: [[3,4],[15,16]], 15: [[4,7],[12,15]], 16: [[4,7],[12,15]],
+  17: [[5,7],[12,14]], 18: [[6,7],[12,13]], 19: [[6,7],[12,13]]
+};
+
 function cellsFromRanges(ranges) {
   const cells = {};
   Object.entries(ranges).forEach(([row, rowRanges]) => {
@@ -34,11 +43,12 @@ function cellsFromRanges(ranges) {
 
 function layerOneCells() { return cellsFromRanges(LAYER_ONE_RANGES); }
 function layerThreeCells() { return cellsFromRanges(LAYER_THREE_RANGES); }
+function layerFourCells() { return cellsFromRanges(LAYER_FOUR_RANGES); }
 
 function freshState() {
   const layers = {};
   for (let i = 1; i <= TOTAL_LAYERS; i++) {
-    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : i === 3 ? layerThreeCells() : {}, completed: false, notes: "" };
+    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : i === 3 ? layerThreeCells() : i === 4 ? layerFourCells() : {}, completed: false, notes: "" };
   }
   return {
     currentLayer: 1,
@@ -58,6 +68,7 @@ function loadState() {
     // 162-block pattern while preserving completion status and notes.
     mergedLayers[2] = { ...base.layers[2], ...(mergedLayers[2] || {}), cells: layerOneCells() };
     mergedLayers[3] = { ...base.layers[3], ...(mergedLayers[3] || {}), cells: layerThreeCells() };
+    mergedLayers[4] = { ...base.layers[4], ...(mergedLayers[4] || {}), cells: layerFourCells() };
     const savedSettings = saved.settings || {};
     const migratedSettings = { ...base.settings, ...savedSettings };
     // Migrate the old single “Changes Only” checkbox to the new comparison controls.
@@ -98,8 +109,8 @@ function cellType(x,y) {
   if (state.settings.showCurrent && currentHas) return "wood";
   if (state.settings.showPrevious && previousHas) return "previous";
 
-  if (state.currentLayer <= 3 && state.settings.center && entranceCell(x,y)) return "entrance";
-  if (state.currentLayer <= 3 && state.settings.center && centerCell(x,y)) return "clearance";
+  if (state.currentLayer <= 4 && state.settings.center && entranceCell(x,y)) return "entrance";
+  if (state.currentLayer <= 4 && state.settings.center && centerCell(x,y)) return "clearance";
   return "ground";
 }
 
@@ -176,7 +187,9 @@ function renderSummary() {
       ? [["Grid","19 × 19"],["Placement","Directly above Layer 1"],["Changes","None"],["Entrance","I15–J19 remains open"],["Material","Puffy Tree Pillar"]]
       : state.currentLayer === 3
         ? [["Grid","19 × 19"],["Placement","Above Layer 2"],["Blocks","131 Puffy Tree Pillars"],["Omitted from Layer 2","31 positions"],["Front","Courtyard remains open"]]
-        : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
+        : state.currentLayer === 4
+          ? [["Grid","19 × 19"],["Placement","Above Layer 3"],["Blocks","114 Puffy Tree Pillars"],["Omitted from Layer 3","17 positions"],["Shape","Gentle trunk taper; shelf bulbs retained"]]
+          : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
   $("summaryFacts").innerHTML = facts.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
 }
 
@@ -193,14 +206,18 @@ function renderMeta() {
       ? "Verified matching footprint"
       : layer === 3
         ? "Root taper and open courtyard"
-        : "Awaiting verified blueprint";
+        : layer === 4
+          ? "Lower trunk shaping and natural shelves"
+          : "Awaiting verified blueprint";
   $("layerGuidance").textContent = layer === 1
     ? "Build the approved 19×19 ground-level footprint. Keep E4–N14 empty for the Pokémon Center and I15–J19 open for the south entrance."
     : layer === 2
       ? "Place one Puffy Tree Pillar directly above every Layer 1 tree block. Do not add or remove blocks. Keep the Pokémon Center space and south entrance open."
       : layer === 3
         ? "Build 131 Puffy Tree Pillars above Layer 2. Red X squares show the 31 Layer 2 positions that stop here—do not place blocks above them. Brown squares are Layer 3 blocks."
-        : "This layer remains blank until we verify its shape in Pokopia.";
+        : layer === 4
+          ? "Build 114 Puffy Tree Pillars above Layer 3. Red X squares mark 17 positions that stop at Layer 3. Keep the front courtyard open and preserve the small side shelf protrusions for mushrooms, glowing lights, and other decorations."
+          : "This layer remains blank until we verify its shape in Pokopia.";
   $("layerNotes").value = data.notes || "";
   $("layerStatus").textContent = data.completed ? "Complete" : "Not complete";
   $("layerStatus").classList.toggle("complete", data.completed);
@@ -247,7 +264,7 @@ $("completeLayer").addEventListener("click", () => {
 
 $("resetLayer").addEventListener("click", () => {
   if (!confirm(`Restore the approved pattern for Layer ${state.currentLayer}?`)) return;
-  state.layers[state.currentLayer].cells = state.currentLayer <= 2 ? layerOneCells() : state.currentLayer === 3 ? layerThreeCells() : {};
+  state.layers[state.currentLayer].cells = state.currentLayer <= 2 ? layerOneCells() : state.currentLayer === 3 ? layerThreeCells() : state.currentLayer === 4 ? layerFourCells() : {};
   state.selected = null;
   save(); renderAll();
 });
@@ -289,6 +306,7 @@ $("importProject").addEventListener("change", async e => {
     state = { ...base, ...incoming, settings: migratedSettings, layers: { ...base.layers, ...incoming.layers } };
     state.layers[2] = { ...state.layers[2], cells: layerOneCells() };
     state.layers[3] = { ...state.layers[3], cells: layerThreeCells() };
+    state.layers[4] = { ...state.layers[4], cells: layerFourCells() };
     save(); renderAll(); alert("Progress imported.");
   } catch { alert("That progress file could not be imported."); }
   e.target.value = "";

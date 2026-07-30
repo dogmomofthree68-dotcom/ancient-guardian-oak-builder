@@ -1,6 +1,6 @@
 const TOTAL_LAYERS = 52;
 const GRID_SIZE = 19;
-const STORAGE_KEY = "ancientGuardianOakBuilderV3";
+const STORAGE_KEY = "ancientGuardianOakBuilderV3"; // keep existing key so progress is preserved
 const COLUMNS = "ABCDEFGHIJKLMNOPQRS".split("");
 const $ = (id) => document.getElementById(id);
 
@@ -26,7 +26,7 @@ function layerOneCells() {
 function freshState() {
   const layers = {};
   for (let i = 1; i <= TOTAL_LAYERS; i++) {
-    layers[i] = { cells: i === 1 ? layerOneCells() : {}, completed: false, notes: "" };
+    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : {}, completed: false, notes: "" };
   }
   return {
     currentLayer: 1,
@@ -41,11 +41,17 @@ function loadState() {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!saved?.layers) return freshState();
     const base = freshState();
+    const mergedLayers = { ...base.layers, ...saved.layers };
+    // Layer 2 was blank in the previous release. Populate the approved pattern
+    // during migration while preserving completion status and notes.
+    if (!mergedLayers[2]?.cells || Object.keys(mergedLayers[2].cells).length === 0) {
+      mergedLayers[2] = { ...base.layers[2], ...(mergedLayers[2] || {}), cells: layerOneCells() };
+    }
     return {
       ...base,
       ...saved,
       settings: { ...base.settings, ...(saved.settings || {}) },
-      layers: { ...base.layers, ...saved.layers }
+      layers: mergedLayers
     };
   } catch { return freshState(); }
 }
@@ -58,8 +64,8 @@ const entranceCell = (x,y) => x >= 8 && x <= 9 && y >= 14 && y <= 18;
 
 function cellType(x,y) {
   if (state.layers[state.currentLayer].cells[`${x},${y}`]) return "wood";
-  if (state.currentLayer === 1 && state.settings.center && entranceCell(x,y)) return "entrance";
-  if (state.currentLayer === 1 && state.settings.center && centerCell(x,y)) return "clearance";
+  if (state.currentLayer <= 2 && state.settings.center && entranceCell(x,y)) return "entrance";
+  if (state.currentLayer <= 2 && state.settings.center && centerCell(x,y)) return "clearance";
   return "ground";
 }
 
@@ -132,7 +138,9 @@ function renderSummary() {
   $("focusCount").textContent = `${count} blocks`;
   const facts = state.currentLayer === 1
     ? [["Grid","19 × 19"],["Center","E4–N14 (10 × 11)"],["Wall","2 blocks thick"],["Entrance","I15–J19"],["Material","Puffy Tree Pillar"]]
-    : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
+    : state.currentLayer === 2
+      ? [["Grid","19 × 19"],["Placement","Directly above Layer 1"],["Changes","None"],["Entrance","I15–J19 remains open"],["Material","Puffy Tree Pillar"]]
+      : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
   $("summaryFacts").innerHTML = facts.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
 }
 
@@ -143,10 +151,16 @@ function renderMeta() {
   $("layerNumber").value = layer;
   $("layerTitle").textContent = `Layer ${layer}`;
   $("focusLayer").textContent = `Layer ${layer}`;
-  $("phaseLabel").textContent = layer === 1 ? "Exact foundation blueprint" : "Awaiting verified blueprint";
+  $("phaseLabel").textContent = layer === 1
+    ? "Exact foundation blueprint"
+    : layer === 2
+      ? "Verified matching footprint"
+      : "Awaiting verified blueprint";
   $("layerGuidance").textContent = layer === 1
     ? "Build the approved 19×19 ground-level footprint. Keep E4–N14 empty for the Pokémon Center and I15–J19 open for the south entrance."
-    : "This layer remains blank until we verify its shape in Pokopia.";
+    : layer === 2
+      ? "Place one Puffy Tree Pillar directly above every Layer 1 tree block. Do not add or remove blocks. Keep the Pokémon Center space and south entrance open."
+      : "This layer remains blank until we verify its shape in Pokopia.";
   $("layerNotes").value = data.notes || "";
   $("layerStatus").textContent = data.completed ? "Complete" : "Not complete";
   $("layerStatus").classList.toggle("complete", data.completed);
@@ -188,7 +202,7 @@ $("completeLayer").addEventListener("click", () => {
 
 $("resetLayer").addEventListener("click", () => {
   if (!confirm(`Restore the approved pattern for Layer ${state.currentLayer}?`)) return;
-  state.layers[state.currentLayer].cells = state.currentLayer === 1 ? layerOneCells() : {};
+  state.layers[state.currentLayer].cells = state.currentLayer <= 2 ? layerOneCells() : {};
   state.selected = null;
   save(); renderAll();
 });

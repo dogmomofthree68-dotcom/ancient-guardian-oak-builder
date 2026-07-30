@@ -1,14 +1,25 @@
-# Ancient Guardian Oak Builder — Layer 1 Blueprint Edition
+# Ancient Guardian Oak Builder - Layers 1-2 Blueprint Edition
 
-This release uses the approved exact 19×19 Layer 1 foundation blueprint.
+This release adds the approved Layer 2 blueprint while preserving existing app progress.
 
-## Included improvements
+## Layer 2 specification
+- 19 x 19 grid
+- 162 Puffy Tree Pillars
+- Same footprint as Layer 1
+- Place one block directly above every Layer 1 tree block
+- No additions or removals
+- Keep E4-N14 clear for the Pokemon Center
+- Keep I15-J19 open for the south entrance
+
+## Included features
+- Exact Layer 1 and Layer 2 blueprints
 - Perfect square grid cells
-- A–S column labels and 1–19 row labels
+- A-S column labels and 1-19 row labels
 - Tap-to-inspect coordinates and materials
-- Layer summary with locked dimensions
+- Layer-specific guidance and summaries
 - Build Focus mode for iPad
 - Layer completion tracking, notes, and progress export/import
+- Automatic migration that fills Layer 2 without erasing saved notes or completion status
 - Updated offline cache
 
 ## GitHub update
@@ -19,4 +30,4 @@ Replace these files in the repository root:
 - sw.js
 - README.md
 
-Keep the existing `icons` folder and `manifest.webmanifest` unless you are replacing the whole project.
+Keep the existing `icons` folder and `manifest.webmanifest`.

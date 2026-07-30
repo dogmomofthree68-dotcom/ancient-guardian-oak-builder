@@ -1,4 +1,4 @@
-# Ancient Guardian Oak Builder v2.1
+# Ancient Guardian Oak Builder v2.3
 
 This is the cleaned permanent base for the Pokopia Ancient Guardian Oak build.
 
@@ -8,8 +8,9 @@ This is the cleaned permanent base for the Pokopia Ancient Guardian Oak build.
 - Layer 3: approved root taper and open courtyard
 - Layer 4: approved lower-trunk shaping
 - Layer 5: 107-block gentle taper
+- Layer 6: 101-block gradual taper with six removals
 
-## v2.1 features
+## v2.3 features
 - Stable filenames: `app.js`, `styles.css`, and `sw.js`
 - Existing saved progress is preserved
 - Current layer blocks are always visible
@@ -27,4 +28,9 @@ Upload these five files to the repository root:
 - `README.md`
 
 Keep the existing `icons` folder and `manifest.webmanifest`.
-After v2.1 loads correctly, old versioned files such as `app-v14.js`, `styles-v14.css`, and `sw-v14.js` can be deleted.
+After v2.3 loads correctly, old versioned files such as `app-v14.js`, `styles-v14.css`, and `sw-v14.js` can be deleted.
+
+
+## Layer 6
+
+Place 101 Puffy Tree Pillars above Layer 5. The six red X squares are Layer 5 positions that stop before Layer 6. The front courtyard stays open, the R10 decorative shelf remains, and the east side pulls inward slightly to begin a subtle left-weighted trunk shape.

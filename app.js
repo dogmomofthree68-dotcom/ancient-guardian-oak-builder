@@ -1,7 +1,7 @@
 const TOTAL_LAYERS = 52;
 const GRID_SIZE = 19;
 const STORAGE_KEY = "ancientGuardianOakBuilderV3"; // keep existing key so progress is preserved
-const APP_VERSION = 10;
+const APP_VERSION = 11;
 const COLUMNS = "ABCDEFGHIJKLMNOPQRS".split("");
 const $ = (id) => document.getElementById(id);
 
@@ -54,7 +54,7 @@ function freshState() {
   return {
     currentLayer: 1,
     selected: null,
-    settings: { coordinates: true, grid: true, center: true, showCurrent: true, showPrevious: false, showChanges: true },
+    settings: { coordinates: true, grid: true, center: true, showCurrent: true, showPrevious: false, showChanges: true, previewZoom: 95, previewReserved: true },
     layers
   };
 }
@@ -89,6 +89,166 @@ function loadState() {
 }
 
 let state = loadState();
+
+const previewView = { yaw: -0.72, pitch: 0.66, dragging: false, pointerId: null, lastX: 0, lastY: 0 };
+
+function authoredPreviewLayer() {
+  let last = 1;
+  for (let i = 1; i <= state.currentLayer; i++) {
+    if (Object.keys(state.layers[i]?.cells || {}).length) last = i;
+  }
+  return last;
+}
+
+function previewBlocks() {
+  const blocks = [];
+  const top = authoredPreviewLayer();
+  for (let z = 0; z < top; z++) {
+    const cells = state.layers[z + 1]?.cells || {};
+    Object.keys(cells).forEach(key => {
+      const [x, y] = key.split(",").map(Number);
+      blocks.push({ x: x - (GRID_SIZE - 1) / 2, y: y - (GRID_SIZE - 1) / 2, z });
+    });
+  }
+  return { blocks, top };
+}
+
+function rotatePreviewPoint(x, y, z) {
+  const cy = Math.cos(previewView.yaw), sy = Math.sin(previewView.yaw);
+  const cp = Math.cos(previewView.pitch), sp = Math.sin(previewView.pitch);
+  const rx = x * cy - y * sy;
+  const ry = x * sy + y * cy;
+  return { x: rx, y: ry * cp - z * sp, depth: ry * sp + z * cp };
+}
+
+function previewPalette(face, reserved = false) {
+  if (reserved) return face === "top" ? "rgba(227,238,247,.72)" : face === "left" ? "rgba(190,211,226,.66)" : "rgba(205,224,236,.68)";
+  if (face === "top") return "#a98565";
+  if (face === "left") return "#76543d";
+  return "#89654b";
+}
+
+function drawPreviewPolygon(ctx, points, fill, stroke = "rgba(50,38,27,.34)") {
+  ctx.beginPath();
+  points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
+  ctx.closePath();
+  ctx.fillStyle = fill;
+  ctx.fill();
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+}
+
+function renderPreview() {
+  const canvas = $("previewCanvas");
+  if (!canvas) return;
+  const stage = $("previewStage");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const width = Math.max(320, stage.clientWidth);
+  const height = Math.max(300, stage.clientHeight);
+  if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) {
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+  }
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+
+  const { blocks, top } = previewBlocks();
+  $("previewLayerNumber").textContent = top;
+  const zoom = Number(state.settings.previewZoom || 95) / 100;
+  const scale = Math.min(width / 34, height / 21) * zoom;
+  const centerX = width / 2;
+  const centerY = height * .67;
+  const projected = (x, y, z) => {
+    const p = rotatePreviewPoint(x, y, z);
+    return { x: centerX + p.x * scale, y: centerY + p.y * scale, depth: p.depth };
+  };
+
+  const items = [];
+  const addCube = (x, y, z, reserved = false, h = 1) => {
+    const pts = [
+      [x-.5,y-.5,z], [x+.5,y-.5,z], [x+.5,y+.5,z], [x-.5,y+.5,z],
+      [x-.5,y-.5,z+h], [x+.5,y-.5,z+h], [x+.5,y+.5,z+h], [x-.5,y+.5,z+h]
+    ].map(v => projected(...v));
+    const avg = pts.reduce((sum,p)=>sum+p.depth,0)/pts.length;
+    items.push({ depth: avg, pts, reserved });
+  };
+  blocks.forEach(b => addCube(b.x,b.y,b.z));
+
+  if (state.settings.previewReserved) {
+    // E4–N14 reserved footprint, shown as one translucent volume from ground to the authored top.
+    const xCenter = ((4 + 13) / 2) - (GRID_SIZE - 1) / 2;
+    const yCenter = ((3 + 13) / 2) - (GRID_SIZE - 1) / 2;
+    const xSize = 10, ySize = 11;
+    const x0=xCenter-xSize/2, x1=xCenter+xSize/2, y0=yCenter-ySize/2, y1=yCenter+ySize/2, z0=0, z1=Math.max(2.3, top*.82);
+    const pts = [[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]].map(v=>projected(...v));
+    items.push({ depth: pts.reduce((s,p)=>s+p.depth,0)/8 - .15, pts, reserved:true });
+  }
+
+  items.sort((a,b)=>a.depth-b.depth);
+  items.forEach(({pts,reserved}) => {
+    const topFace=[pts[4],pts[5],pts[6],pts[7]];
+    const leftFace=[pts[0],pts[3],pts[7],pts[4]];
+    const rightFace=[pts[1],pts[2],pts[6],pts[5]];
+    drawPreviewPolygon(ctx,leftFace,previewPalette("left",reserved), reserved ? "rgba(76,113,137,.32)" : undefined);
+    drawPreviewPolygon(ctx,rightFace,previewPalette("right",reserved), reserved ? "rgba(76,113,137,.32)" : undefined);
+    drawPreviewPolygon(ctx,topFace,previewPalette("top",reserved), reserved ? "rgba(76,113,137,.42)" : undefined);
+  });
+
+  // Ground orientation marker.
+  ctx.save();
+  ctx.fillStyle = "rgba(40,39,31,.75)";
+  ctx.font = "800 12px ui-rounded, system-ui";
+  ctx.textAlign = "center";
+  const north = projected(0,-12,0);
+  ctx.fillText("NORTH ↑", north.x, north.y - 5);
+  ctx.restore();
+}
+
+function resetPreviewView() {
+  previewView.yaw = -0.72;
+  previewView.pitch = 0.66;
+  renderPreview();
+}
+
+function setupPreviewControls() {
+  const stage = $("previewStage");
+  const zoom = $("previewZoom");
+  const reserved = $("previewReserved");
+  if (!stage || !zoom || !reserved) return;
+  zoom.value = state.settings.previewZoom || 95;
+  reserved.checked = state.settings.previewReserved !== false;
+  zoom.addEventListener("input", e => { state.settings.previewZoom = Number(e.target.value); save(); renderPreview(); });
+  reserved.addEventListener("change", e => { state.settings.previewReserved = e.target.checked; save(); renderPreview(); });
+  $("previewReset").addEventListener("click", resetPreviewView);
+
+  stage.addEventListener("pointerdown", e => {
+    previewView.dragging = true; previewView.pointerId = e.pointerId; previewView.lastX = e.clientX; previewView.lastY = e.clientY;
+    stage.setPointerCapture(e.pointerId); stage.classList.add("dragging");
+  });
+  stage.addEventListener("pointermove", e => {
+    if (!previewView.dragging || e.pointerId !== previewView.pointerId) return;
+    const dx=e.clientX-previewView.lastX, dy=e.clientY-previewView.lastY;
+    previewView.lastX=e.clientX; previewView.lastY=e.clientY;
+    previewView.yaw += dx * .010;
+    previewView.pitch = Math.max(.22, Math.min(1.18, previewView.pitch + dy * .008));
+    renderPreview();
+  });
+  const endDrag = e => {
+    if (e.pointerId !== previewView.pointerId) return;
+    previewView.dragging=false; previewView.pointerId=null; stage.classList.remove("dragging");
+  };
+  stage.addEventListener("pointerup", endDrag);
+  stage.addEventListener("pointercancel", endDrag);
+  stage.addEventListener("wheel", e => {
+    e.preventDefault();
+    const next=Math.max(55,Math.min(150,Number(state.settings.previewZoom||95)-Math.sign(e.deltaY)*5));
+    state.settings.previewZoom=next; zoom.value=next; save(); renderPreview();
+  }, {passive:false});
+  window.addEventListener("resize", renderPreview);
+}
+
 let deferredPrompt = null;
 const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 const centerCell = (x,y) => x >= 4 && x <= 13 && y >= 3 && y <= 13;
@@ -267,7 +427,7 @@ function renderSettings() {
   $("changesToggle").disabled = state.currentLayer === 1;
 }
 
-function renderAll() { renderMeta(); renderSettings(); renderBlueprint(); renderInspector(); renderSummary(); renderProgress(); }
+function renderAll() { renderMeta(); renderSettings(); renderBlueprint(); renderInspector(); renderSummary(); renderProgress(); renderPreview(); }
 function setLayer(value) {
   state.currentLayer = Math.max(1, Math.min(TOTAL_LAYERS, Number(value) || 1));
   state.selected = null;
@@ -354,4 +514,5 @@ $("installButton").addEventListener("click", async () => {
 });
 
 if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js"));
+setupPreviewControls();
 renderAll();

@@ -34,3 +34,12 @@ When changing layers, the app now automatically returns to normal build view: cu
 
 ## Version 10 Layer 4 display correction
 Current-layer blocks remain brown. Red X markers are now a separate overlay and appear only at the 17 Layer 3 positions omitted on Layer 4.
+
+
+## Version 11 — rotatable 3D preview
+
+- Adds an offline, touch-friendly 3D preview beneath the blueprint.
+- The preview stacks every authored layer through the currently selected layer.
+- Drag to rotate, use the zoom control, and optionally display the Pokémon Center reserved volume.
+- No external libraries or internet connection are required.
+- Layers 1–4 and all saved progress remain unchanged.

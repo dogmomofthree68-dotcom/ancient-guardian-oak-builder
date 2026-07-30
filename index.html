@@ -10,7 +10,7 @@
   <title>Ancient Guardian Oak Builder</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=10" />
+  <link rel="stylesheet" href="styles.css?v=11" />
 </head>
 <body>
   <header class="topbar">
@@ -98,6 +98,28 @@
         </div>
       </article>
 
+      <article class="panel preview-panel">
+        <div class="preview-heading">
+          <div>
+            <p class="eyebrow">Stacked build check</p>
+            <h2>3D preview through Layer <span id="previewLayerNumber">1</span></h2>
+            <p class="guidance">Drag the preview to rotate it. This view stacks every authored layer from the ground through the selected layer.</p>
+          </div>
+          <div class="preview-actions">
+            <button id="previewReset" type="button">Reset view</button>
+          </div>
+        </div>
+        <div class="preview-stage" id="previewStage">
+          <canvas id="previewCanvas" aria-label="Rotatable three-dimensional preview of the completed tree layers"></canvas>
+          <div class="preview-hint">Drag to rotate · Pinch or use zoom</div>
+        </div>
+        <div class="preview-controls">
+          <label for="previewZoom">Zoom</label>
+          <input id="previewZoom" type="range" min="55" max="150" value="95" />
+          <label class="check"><input id="previewReserved" type="checkbox" checked /> Show Pokémon Center reserved volume</label>
+        </div>
+      </article>
+
       <div class="info-grid">
         <article class="panel inspector">
           <h2>Selected square</h2>
@@ -127,6 +149,6 @@
     <span id="focusCount">162 blocks</span>
   </div>
 
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>

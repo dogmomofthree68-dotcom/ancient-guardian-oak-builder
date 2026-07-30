@@ -202,3 +202,54 @@ body.focus-active .blueprint { --cell: clamp(27px, 4vw, 52px); }
   .blueprint-heading { display: block; }
   .badges { justify-content: flex-start; margin-top: 10px; }
 }
+
+
+/* Rotatable stacked 3D preview */
+.preview-panel { overflow: hidden; }
+.preview-heading { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
+.preview-heading h2 { margin-bottom: 6px; }
+.preview-actions { flex: 0 0 auto; }
+.preview-stage {
+  position: relative;
+  min-height: 390px;
+  margin-top: 12px;
+  border: 1px solid #8d887f;
+  border-radius: 12px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 25%, rgba(255,255,255,.98), rgba(240,244,232,.9) 45%, rgba(204,222,191,.9));
+  touch-action: none;
+  cursor: grab;
+}
+.preview-stage.dragging { cursor: grabbing; }
+#previewCanvas { display: block; width: 100%; height: 390px; }
+.preview-hint {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(255,253,247,.88);
+  border: 1px solid rgba(90,75,56,.24);
+  color: var(--muted);
+  font-size: .76rem;
+  font-weight: 800;
+  pointer-events: none;
+}
+.preview-controls {
+  display: grid;
+  grid-template-columns: auto minmax(140px, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+.preview-controls > label:first-child { font-weight: 800; }
+.preview-controls .check { justify-self: end; }
+@media (max-width: 700px) {
+  .preview-heading { display: block; }
+  .preview-actions { margin-top: 10px; }
+  .preview-stage { min-height: 330px; }
+  #previewCanvas { height: 330px; }
+  .preview-controls { grid-template-columns: auto 1fr; }
+  .preview-controls .check { grid-column: 1 / -1; justify-self: start; }
+}

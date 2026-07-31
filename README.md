@@ -1,8 +1,12 @@
-Ancient Guardian Oak Builder — Layer 11 fixed
+Ancient Guardian Oak Builder — Layer 12
 
-This corrected build resolves both reported problems:
-- Layer 11 now visibly compares against Layer 10: 10 green additions and 5 red-X omissions.
-- The rotatable 3D preview now renders through Layer 11 instead of stopping at Layer 9.
-- Cache-busting references and the service-worker cache name were updated so iPad Safari loads the corrected files.
+This update adds the verified Layer 12 construction blueprint only.
 
-Layer 11 contains 96 blocks. Layers 1–10 remain unchanged.
+Layer 12 contains 88 Puffy Tree Pillars:
+- 9 Layer 11 positions stop (red X markers)
+- 1 new block is added at H7 (green addition marker)
+- The upper trunk pulls inward for the first noticeable crown taper
+- The central Pokémon Center roof opening remains visible
+- The isolated R10 decorative shelf remains
+
+Layers 1–11 are unchanged. The rotatable preview now renders through Layer 12.

@@ -1,7 +1,7 @@
 const TOTAL_LAYERS = 52;
 const GRID_SIZE = 19;
 const STORAGE_KEY = "ancientGuardianOakBuilderV3"; // keep existing key so progress is preserved
-const APP_VERSION = 2112;
+const APP_VERSION = 2113;
 const COLUMNS = "ABCDEFGHIJKLMNOPQRS".split("");
 const $ = (id) => document.getElementById(id);
 
@@ -95,6 +95,15 @@ const LAYER_ELEVEN_RANGES = {
   17: [[6,7],[12,14]], 18: [[6,7],[12,13]], 19: [[6,6],[12,12]]
 };
 
+const LAYER_TWELVE_RANGES = {
+  1: [[8,8]], 2: [[6,9]], 3: [[5,10]], 4: [[3,4],[15,15]],
+  5: [[3,7],[15,15]], 6: [[3,8],[15,16]], 7: [[3,3],[5,8],[15,16]],
+  8: [[3,3],[15,15]], 9: [[3,3],[15,16]], 10: [[2,4],[15,16],[18,18]],
+  11: [[3,4],[15,15]], 12: [[3,3],[14,15]], 13: [[3,4],[10,15]],
+  14: [[3,3],[11,15]], 15: [[4,6],[12,14]], 16: [[5,7],[12,14]],
+  17: [[6,7],[12,13]], 18: [[6,7],[12,13]], 19: [[6,6],[12,12]]
+};
+
 function cellsFromRanges(ranges) {
   const cells = {};
   Object.entries(ranges).forEach(([row, rowRanges]) => {
@@ -115,11 +124,12 @@ function layerEightCells() { return cellsFromRanges(LAYER_EIGHT_RANGES); }
 function layerNineCells() { return cellsFromRanges(LAYER_NINE_RANGES); }
 function layerTenCells() { return cellsFromRanges(LAYER_TEN_RANGES); }
 function layerElevenCells() { return cellsFromRanges(LAYER_ELEVEN_RANGES); }
+function layerTwelveCells() { return cellsFromRanges(LAYER_TWELVE_RANGES); }
 
 function freshState() {
   const layers = {};
   for (let i = 1; i <= TOTAL_LAYERS; i++) {
-    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : i === 3 ? layerThreeCells() : i === 4 ? layerFourCells() : i === 5 ? layerFiveCells() : i === 6 ? layerSixCells() : i === 7 ? layerSevenCells() : i === 8 ? layerEightCells() : i === 9 ? layerNineCells() : i === 10 ? layerTenCells() : i === 11 ? layerElevenCells() : {}, completed: false, notes: "" };
+    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : i === 3 ? layerThreeCells() : i === 4 ? layerFourCells() : i === 5 ? layerFiveCells() : i === 6 ? layerSixCells() : i === 7 ? layerSevenCells() : i === 8 ? layerEightCells() : i === 9 ? layerNineCells() : i === 10 ? layerTenCells() : i === 11 ? layerElevenCells() : i === 12 ? layerTwelveCells() : {}, completed: false, notes: "" };
   }
   return {
     currentLayer: 1,
@@ -147,6 +157,7 @@ function loadState() {
     mergedLayers[9] = { ...base.layers[9], ...(mergedLayers[9] || {}), cells: layerNineCells() };
     mergedLayers[10] = { ...base.layers[10], ...(mergedLayers[10] || {}), cells: layerTenCells() };
     mergedLayers[11] = { ...base.layers[11], ...(mergedLayers[11] || {}), cells: layerElevenCells() };
+    mergedLayers[12] = { ...base.layers[12], ...(mergedLayers[12] || {}), cells: layerTwelveCells() };
     const savedSettings = saved.settings || {};
     const migratedSettings = { ...base.settings, ...savedSettings };
     // Migrate the old single “Changes Only” checkbox to the new comparison controls.
@@ -313,7 +324,9 @@ function renderSummary() {
                       ? [["Grid","19 × 19"],["Placement","Above Layer 9"],["Blocks","91 Puffy Tree Pillars"],["Changes","2 omissions · 14 additions"],["Shape","First overhead branch shoulders"]]
                       : state.currentLayer === 11
                         ? [["Grid","19 × 19"],["Placement","Above Layer 10"],["Blocks","96 Puffy Tree Pillars"],["Changes","5 omissions · 10 additions"],["Shape","Crown transition and rising leaders"]]
-                        : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
+                        : state.currentLayer === 12
+                          ? [["Grid","19 × 19"],["Placement","Above Layer 11"],["Blocks","88 Puffy Tree Pillars"],["Changes","9 omissions · 1 addition"],["Shape","First noticeable inward taper; center remains open"]]
+                          : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
   $("summaryFacts").innerHTML = facts.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
 }
 
@@ -346,7 +359,9 @@ function renderMeta() {
                     ? "First overhead branch shoulders"
                     : layer === 11
                       ? "Crown transition and rising leaders"
-                      : "Awaiting verified blueprint";
+                      : layer === 12
+                        ? "First noticeable inward crown taper"
+                        : "Awaiting verified blueprint";
   $("layerGuidance").textContent = layer === 1
     ? "Build the approved 19×19 ground-level footprint. Keep E4–N14 empty for the Pokémon Center and I15–J19 open for the south entrance."
     : layer === 2
@@ -369,7 +384,9 @@ function renderMeta() {
                     ? "Build 91 Puffy Tree Pillars above Layer 9. Red X squares mark 2 Layer 9 positions that stop here, while green-marked brown squares show 14 new overhead shoulder blocks. The rear-left shoulder reaches inward across E5–G7, and the smaller front-right shoulder reaches inward across K13–N14. Keep the center open between them; these shoulders do not connect yet."
                     : layer === 11
                       ? "Build 96 Puffy Tree Pillars above Layer 10. Red X squares mark 5 Layer 10 positions that stop here, while green-marked brown squares show 10 new blocks. Continue the rear-left leader inward through G5–H7, widen the front-right shoulder through J13–K15, keep the central roof opening unbridged, and preserve the small R10 shelf as part of the irregular bark silhouette."
-                      : "This layer remains blank until we verify its shape in Pokopia.";
+                      : layer === 12
+                        ? "Build 88 Puffy Tree Pillars above Layer 11. Red X squares mark 9 Layer 11 positions that stop here, and one green-marked brown square at H7 is new. Pull the upper front and side edges inward, keep the central Pokémon Center roof opening visible, and preserve the isolated R10 shelf."
+                        : "This layer remains blank until we verify its shape in Pokopia.";
   $("layerNotes").value = data.notes || "";
   $("layerStatus").textContent = data.completed ? "Complete" : "Not complete";
   $("layerStatus").classList.toggle("complete", data.completed);
@@ -545,7 +562,7 @@ function cubeFaces(x, y, z, size, scale, cx, cy, colorSet, kind = "wood") {
 
 function previewGeometry() {
   const faces = [];
-  const selectedLayer = Math.min(state.currentLayer, 11);
+  const selectedLayer = Math.min(state.currentLayer, 12);
   for (let layer = 1; layer <= selectedLayer; layer++) {
     const cells = state.layers[layer].cells;
     Object.keys(cells).forEach(key => {
@@ -598,7 +615,7 @@ function drawPreview() {
   faces.sort((a,b)=>a.depth-b.depth || (a.kind === "center" ? -1 : 1));
   faces.forEach(face=>polygon(ctx,face.pts,face.fill,face.kind === "center" ? "rgba(48,112,139,.38)" : "rgba(42,31,20,.34)"));
   ctx.fillStyle="rgba(44,51,38,.8)"; ctx.font="700 12px system-ui";
-  ctx.fillText(`Layers 1–${Math.min(state.currentLayer,9)} • drag to rotate`,12,20);
+  ctx.fillText(`Layers 1–${Math.min(state.currentLayer,12)} • drag to rotate`,12,20);
 }
 
 function setupPreview() {
@@ -621,7 +638,7 @@ renderAll = function() { baseRenderAll(); requestAnimationFrame(drawPreview); };
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try {
-      await navigator.serviceWorker.register("sw.js?v=21-layer11-fixed2", { updateViaCache: "none" });
+      await navigator.serviceWorker.register("sw.js?v=21-layer12", { updateViaCache: "none" });
     } catch (error) {
       console.warn("Service worker registration failed", error);
     }

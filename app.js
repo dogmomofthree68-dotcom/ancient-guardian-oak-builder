@@ -68,6 +68,15 @@ const LAYER_EIGHT_RANGES = {
   17: [[6,7],[12,13]], 18: [[6,7],[12,13]], 19: [[6,7],[12,13]]
 };
 
+const LAYER_NINE_RANGES = {
+  1: [[8,9]], 2: [[6,10]], 3: [[4,11]], 4: [[2,3],[15,16]],
+  5: [[3,4],[15,15]], 6: [[2,4],[15,16]], 7: [[3,3],[15,16]],
+  8: [[3,4],[15,15]], 9: [[3,3],[15,16]], 10: [[2,4],[15,16],[18,18]],
+  11: [[3,4],[15,15]], 12: [[3,3],[15,16]], 13: [[3,4],[15,16]],
+  14: [[3,3],[15,15]], 15: [[4,6],[12,14]], 16: [[4,7],[12,14]],
+  17: [[6,7],[12,14]], 18: [[6,7],[12,13]], 19: [[6,6],[12,13]]
+};
+
 function cellsFromRanges(ranges) {
   const cells = {};
   Object.entries(ranges).forEach(([row, rowRanges]) => {
@@ -85,11 +94,12 @@ function layerFiveCells() { return cellsFromRanges(LAYER_FIVE_RANGES); }
 function layerSixCells() { return cellsFromRanges(LAYER_SIX_RANGES); }
 function layerSevenCells() { return cellsFromRanges(LAYER_SEVEN_RANGES); }
 function layerEightCells() { return cellsFromRanges(LAYER_EIGHT_RANGES); }
+function layerNineCells() { return cellsFromRanges(LAYER_NINE_RANGES); }
 
 function freshState() {
   const layers = {};
   for (let i = 1; i <= TOTAL_LAYERS; i++) {
-    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : i === 3 ? layerThreeCells() : i === 4 ? layerFourCells() : i === 5 ? layerFiveCells() : i === 6 ? layerSixCells() : i === 7 ? layerSevenCells() : i === 8 ? layerEightCells() : {}, completed: false, notes: "" };
+    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : i === 3 ? layerThreeCells() : i === 4 ? layerFourCells() : i === 5 ? layerFiveCells() : i === 6 ? layerSixCells() : i === 7 ? layerSevenCells() : i === 8 ? layerEightCells() : i === 9 ? layerNineCells() : {}, completed: false, notes: "" };
   }
   return {
     currentLayer: 1,
@@ -114,6 +124,7 @@ function loadState() {
     mergedLayers[6] = { ...base.layers[6], ...(mergedLayers[6] || {}), cells: layerSixCells() };
     mergedLayers[7] = { ...base.layers[7], ...(mergedLayers[7] || {}), cells: layerSevenCells() };
     mergedLayers[8] = { ...base.layers[8], ...(mergedLayers[8] || {}), cells: layerEightCells() };
+    mergedLayers[9] = { ...base.layers[9], ...(mergedLayers[9] || {}), cells: layerNineCells() };
     const savedSettings = saved.settings || {};
     const migratedSettings = { ...base.settings, ...savedSettings };
     // Migrate the old single “Changes Only” checkbox to the new comparison controls.
@@ -274,7 +285,9 @@ function renderSummary() {
                 ? [["Grid","19 × 19"],["Placement","Above Layer 6"],["Blocks","93 Puffy Tree Pillars"],["Omitted from Layer 6","8 positions"],["Shape","First sculpting layer; staggered ridges and subtle clockwise twist"]]
                 : state.currentLayer === 8
                   ? [["Grid","19 × 19"],["Placement","Above Layer 7"],["Blocks","89 Puffy Tree Pillars"],["Omitted from Layer 7","4 positions"],["Milestone","Final layer enclosing the Pokémon Center"]]
-                  : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
+                  : state.currentLayer === 9
+                    ? [["Grid","19 × 19"],["Placement","Above Layer 8"],["Blocks","79 Puffy Tree Pillars"],["Changes","14 omissions · 4 additions"],["Shape","First branch shoulders and broken skyline"]]
+                    : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
   $("summaryFacts").innerHTML = facts.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
 }
 
@@ -301,7 +314,9 @@ function renderMeta() {
                 ? "First sculpting layer with staggered bark ridges"
                 : layer === 8
                   ? "Final Pokémon Center enclosure layer"
-                  : "Awaiting verified blueprint";
+                  : layer === 9
+                    ? "First branch shoulders and broken trunk skyline"
+                    : "Awaiting verified blueprint";
   $("layerGuidance").textContent = layer === 1
     ? "Build the approved 19×19 ground-level footprint. Keep E4–N14 empty for the Pokémon Center and I15–J19 open for the south entrance."
     : layer === 2
@@ -318,7 +333,9 @@ function renderMeta() {
                 ? "Build 93 Puffy Tree Pillars above Layer 6. Red X squares mark the 8 Layer 6 positions that stop here. This is the first sculpting layer: keep the entrance open, preserve the R10 shelf, and follow the staggered outline so several bark ridges continue upward while neighboring columns pause."
                 : layer === 8
                   ? "Build 89 Puffy Tree Pillars above Layer 7. Red X squares mark the 4 Layer 7 positions that stop here. This is the final layer where the trunk volume encloses the Pokémon Center. Keep the entrance open, retain the R10 decorative shelf, and follow the uneven taper so the strongest bark ridges continue while the upper trunk begins to narrow."
-                  : "This layer remains blank until we verify its shape in Pokopia.";
+                  : layer === 9
+                    ? "Build 79 Puffy Tree Pillars above Layer 8. Red X squares mark 14 Layer 8 positions that stop here, while green-marked brown squares show 4 new outward shoulder blocks. Layer 9 is above the Pokémon Center blocking volume, so the blue clearance overlay is no longer shown. Keep the R10 shelf, strengthen the rear-left shoulder, add the smaller front-right shoulder, and allow several bark ribs to terminate so the top edge is no longer level."
+                    : "This layer remains blank until we verify its shape in Pokopia.";
   $("layerNotes").value = data.notes || "";
   $("layerStatus").textContent = data.completed ? "Complete" : "Not complete";
   $("layerStatus").classList.toggle("complete", data.completed);
@@ -372,7 +389,7 @@ $("completeLayer").addEventListener("click", () => {
 
 $("resetLayer").addEventListener("click", () => {
   if (!confirm(`Restore the approved pattern for Layer ${state.currentLayer}?`)) return;
-  state.layers[state.currentLayer].cells = state.currentLayer <= 2 ? layerOneCells() : state.currentLayer === 3 ? layerThreeCells() : state.currentLayer === 4 ? layerFourCells() : state.currentLayer === 5 ? layerFiveCells() : state.currentLayer === 6 ? layerSixCells() : state.currentLayer === 7 ? layerSevenCells() : state.currentLayer === 8 ? layerEightCells() : {};
+  state.layers[state.currentLayer].cells = state.currentLayer <= 2 ? layerOneCells() : state.currentLayer === 3 ? layerThreeCells() : state.currentLayer === 4 ? layerFourCells() : state.currentLayer === 5 ? layerFiveCells() : state.currentLayer === 6 ? layerSixCells() : state.currentLayer === 7 ? layerSevenCells() : state.currentLayer === 8 ? layerEightCells() : state.currentLayer === 9 ? layerNineCells() : {};
   state.selected = null;
   save(); renderAll();
 });
@@ -422,6 +439,7 @@ $("importProject").addEventListener("change", async e => {
     state.layers[6] = { ...state.layers[6], cells: layerSixCells() };
     state.layers[7] = { ...state.layers[7], cells: layerSevenCells() };
     state.layers[8] = { ...state.layers[8], cells: layerEightCells() };
+    state.layers[9] = { ...state.layers[9], cells: layerNineCells() };
     save(); renderAll(); alert("Progress imported.");
   } catch { alert("That progress file could not be imported."); }
   e.target.value = "";
@@ -492,7 +510,7 @@ function cubeFaces(x, y, z, size, scale, cx, cy, colorSet, kind = "wood") {
 
 function previewGeometry() {
   const faces = [];
-  const selectedLayer = Math.min(state.currentLayer, 8);
+  const selectedLayer = Math.min(state.currentLayer, 9);
   for (let layer = 1; layer <= selectedLayer; layer++) {
     const cells = state.layers[layer].cells;
     Object.keys(cells).forEach(key => {
@@ -545,7 +563,7 @@ function drawPreview() {
   faces.sort((a,b)=>a.depth-b.depth || (a.kind === "center" ? -1 : 1));
   faces.forEach(face=>polygon(ctx,face.pts,face.fill,face.kind === "center" ? "rgba(48,112,139,.38)" : "rgba(42,31,20,.34)"));
   ctx.fillStyle="rgba(44,51,38,.8)"; ctx.font="700 12px system-ui";
-  ctx.fillText(`Layers 1–${Math.min(state.currentLayer,8)} • drag to rotate`,12,20);
+  ctx.fillText(`Layers 1–${Math.min(state.currentLayer,9)} • drag to rotate`,12,20);
 }
 
 function setupPreview() {
@@ -568,7 +586,7 @@ renderAll = function() { baseRenderAll(); requestAnimationFrame(drawPreview); };
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try {
-      await navigator.serviceWorker.register("sw.js?v=21-layer8", { updateViaCache: "none" });
+      await navigator.serviceWorker.register("sw.js?v=21-layer9", { updateViaCache: "none" });
     } catch (error) {
       console.warn("Service worker registration failed", error);
     }

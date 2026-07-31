@@ -1,7 +1,7 @@
 const TOTAL_LAYERS = 52;
 const GRID_SIZE = 19;
 const STORAGE_KEY = "ancientGuardianOakBuilderV3"; // keep existing key so progress is preserved
-const APP_VERSION = 2114;
+const APP_VERSION = 2115;
 const COLUMNS = "ABCDEFGHIJKLMNOPQRS".split("");
 const $ = (id) => document.getElementById(id);
 
@@ -112,6 +112,15 @@ const LAYER_THIRTEEN_RANGES = {
   14: [[3,3],[11,14]], 15: [[4,6],[12,14]], 16: [[5,7],[12,13]],
   17: [[6,7],[12,13]], 18: [[6,7],[12,13]], 19: [[6,6],[12,12]]
 };
+const LAYER_FOURTEEN_RANGES = {
+  1: [[8,8]], 2: [[6,8]], 3: [[6,8]], 4: [[4,4],[15,15]],
+  5: [[4,7],[15,15]], 6: [[4,8],[15,15]], 7: [[3,3],[6,8],[15,15]],
+  8: [[3,3],[15,15]], 9: [[3,3],[15,15]], 10: [[1,4],[15,16]],
+  11: [[3,4],[15,15]], 12: [[3,3],[14,15]], 13: [[3,4],[11,14]],
+  14: [[3,3],[11,14]], 15: [[4,6],[12,13]], 16: [[5,7],[12,13]],
+  17: [[6,7],[12,13]], 18: [[6,7],[12,12]], 19: [[6,6],[12,12]]
+};
+
 
 function cellsFromRanges(ranges) {
   const cells = {};
@@ -135,11 +144,12 @@ function layerTenCells() { return cellsFromRanges(LAYER_TEN_RANGES); }
 function layerElevenCells() { return cellsFromRanges(LAYER_ELEVEN_RANGES); }
 function layerTwelveCells() { return cellsFromRanges(LAYER_TWELVE_RANGES); }
 function layerThirteenCells() { return cellsFromRanges(LAYER_THIRTEEN_RANGES); }
+function layerFourteenCells() { return cellsFromRanges(LAYER_FOURTEEN_RANGES); }
 
 function freshState() {
   const layers = {};
   for (let i = 1; i <= TOTAL_LAYERS; i++) {
-    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : i === 3 ? layerThreeCells() : i === 4 ? layerFourCells() : i === 5 ? layerFiveCells() : i === 6 ? layerSixCells() : i === 7 ? layerSevenCells() : i === 8 ? layerEightCells() : i === 9 ? layerNineCells() : i === 10 ? layerTenCells() : i === 11 ? layerElevenCells() : i === 12 ? layerTwelveCells() : i === 13 ? layerThirteenCells() : {}, completed: false, notes: "" };
+    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : i === 3 ? layerThreeCells() : i === 4 ? layerFourCells() : i === 5 ? layerFiveCells() : i === 6 ? layerSixCells() : i === 7 ? layerSevenCells() : i === 8 ? layerEightCells() : i === 9 ? layerNineCells() : i === 10 ? layerTenCells() : i === 11 ? layerElevenCells() : i === 12 ? layerTwelveCells() : i === 13 ? layerThirteenCells() : i === 14 ? layerFourteenCells() : {}, completed: false, notes: "" };
   }
   return {
     currentLayer: 1,
@@ -169,6 +179,7 @@ function loadState() {
     mergedLayers[11] = { ...base.layers[11], ...(mergedLayers[11] || {}), cells: layerElevenCells() };
     mergedLayers[12] = { ...base.layers[12], ...(mergedLayers[12] || {}), cells: layerTwelveCells() };
     mergedLayers[13] = { ...base.layers[13], ...(mergedLayers[13] || {}), cells: layerThirteenCells() };
+    mergedLayers[14] = { ...base.layers[14], ...(mergedLayers[14] || {}), cells: layerFourteenCells() };
     const savedSettings = saved.settings || {};
     const migratedSettings = { ...base.settings, ...savedSettings };
     // Migrate the old single “Changes Only” checkbox to the new comparison controls.
@@ -339,7 +350,9 @@ function renderSummary() {
                           ? [["Grid","19 × 19"],["Placement","Above Layer 11"],["Blocks","88 Puffy Tree Pillars"],["Changes","9 omissions · 1 addition"],["Shape","First noticeable inward taper; center remains open"]]
                           : state.currentLayer === 13
                             ? [["Grid","19 × 19"],["Placement","Above Layer 12"],["Blocks","81 Puffy Tree Pillars"],["Changes","8 omissions · 1 addition"],["Shape","Visible taper with a subtle leftward lean"]]
-                            : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
+                            : state.currentLayer === 14
+                              ? [["Grid","19 × 19"],["Placement","Above Layer 13"],["Blocks","71 Puffy Tree Pillars"],["Changes","11 omissions · 1 addition"],["Shape","Stronger inward taper with a westward leader"]]
+                              : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
   $("summaryFacts").innerHTML = facts.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
 }
 
@@ -376,7 +389,9 @@ function renderMeta() {
                         ? "First noticeable inward crown taper"
                         : layer === 13
                           ? "Visible taper and first leftward lean"
-                          : "Awaiting verified blueprint";
+                          : layer === 14
+                            ? "Stronger taper and westward crown transition"
+                            : "Awaiting verified blueprint";
   $("layerGuidance").textContent = layer === 1
     ? "Build the approved 19×19 ground-level footprint. Keep E4–N14 empty for the Pokémon Center and I15–J19 open for the south entrance."
     : layer === 2
@@ -403,7 +418,9 @@ function renderMeta() {
                         ? "Build 88 Puffy Tree Pillars above Layer 11. Red X squares mark 9 Layer 11 positions that stop here, and one green-marked brown square at H7 is new. Pull the upper front and side edges inward, keep the central Pokémon Center roof opening visible, and preserve the isolated R10 shelf."
                         : layer === 13
                           ? "Build 81 Puffy Tree Pillars above Layer 12. Red X squares mark 8 Layer 12 positions that stop here, and the green-marked brown square at B11 is new. The east and rear edges taper inward more noticeably while the new west-side block begins the gentle leftward lean. Keep the south entrance and central roof opening clear."
-                          : "This layer remains blank until we verify its shape in Pokopia.";
+                          : layer === 14
+                            ? "Build 71 Puffy Tree Pillars above Layer 13. Red X squares mark 11 Layer 13 positions that stop here, and the green-marked brown square at A10 begins a stronger westward leader. Pull the upper rear, west, and east edges inward, simplify the bark ridges, and keep both the south entrance and central roof opening clear."
+                            : "This layer remains blank until we verify its shape in Pokopia.";
   $("layerNotes").value = data.notes || "";
   $("layerStatus").textContent = data.completed ? "Complete" : "Not complete";
   $("layerStatus").classList.toggle("complete", data.completed);
@@ -457,7 +474,7 @@ $("completeLayer").addEventListener("click", () => {
 
 $("resetLayer").addEventListener("click", () => {
   if (!confirm(`Restore the approved pattern for Layer ${state.currentLayer}?`)) return;
-  state.layers[state.currentLayer].cells = state.currentLayer <= 2 ? layerOneCells() : state.currentLayer === 3 ? layerThreeCells() : state.currentLayer === 4 ? layerFourCells() : state.currentLayer === 5 ? layerFiveCells() : state.currentLayer === 6 ? layerSixCells() : state.currentLayer === 7 ? layerSevenCells() : state.currentLayer === 8 ? layerEightCells() : state.currentLayer === 9 ? layerNineCells() : state.currentLayer === 10 ? layerTenCells() : state.currentLayer === 11 ? layerElevenCells() : state.currentLayer === 12 ? layerTwelveCells() : state.currentLayer === 13 ? layerThirteenCells() : {};
+  state.layers[state.currentLayer].cells = state.currentLayer <= 2 ? layerOneCells() : state.currentLayer === 3 ? layerThreeCells() : state.currentLayer === 4 ? layerFourCells() : state.currentLayer === 5 ? layerFiveCells() : state.currentLayer === 6 ? layerSixCells() : state.currentLayer === 7 ? layerSevenCells() : state.currentLayer === 8 ? layerEightCells() : state.currentLayer === 9 ? layerNineCells() : state.currentLayer === 10 ? layerTenCells() : state.currentLayer === 11 ? layerElevenCells() : state.currentLayer === 12 ? layerTwelveCells() : state.currentLayer === 13 ? layerThirteenCells() : state.currentLayer === 14 ? layerFourteenCells() : {};
   state.selected = null;
   save(); renderAll();
 });
@@ -579,7 +596,7 @@ function cubeFaces(x, y, z, size, scale, cx, cy, colorSet, kind = "wood") {
 
 function previewGeometry() {
   const faces = [];
-  const selectedLayer = Math.min(state.currentLayer, 13);
+  const selectedLayer = Math.min(state.currentLayer, 14);
   for (let layer = 1; layer <= selectedLayer; layer++) {
     const cells = state.layers[layer].cells;
     Object.keys(cells).forEach(key => {
@@ -632,7 +649,7 @@ function drawPreview() {
   faces.sort((a,b)=>a.depth-b.depth || (a.kind === "center" ? -1 : 1));
   faces.forEach(face=>polygon(ctx,face.pts,face.fill,face.kind === "center" ? "rgba(48,112,139,.38)" : "rgba(42,31,20,.34)"));
   ctx.fillStyle="rgba(44,51,38,.8)"; ctx.font="700 12px system-ui";
-  ctx.fillText(`Layers 1–${Math.min(state.currentLayer,13)} • drag to rotate`,12,20);
+  ctx.fillText(`Layers 1–${Math.min(state.currentLayer,14)} • drag to rotate`,12,20);
 }
 
 function setupPreview() {
@@ -655,7 +672,7 @@ renderAll = function() { baseRenderAll(); requestAnimationFrame(drawPreview); };
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try {
-      await navigator.serviceWorker.register("sw.js?v=21-layer13", { updateViaCache: "none" });
+      await navigator.serviceWorker.register("sw.js?v=21-layer14", { updateViaCache: "none" });
     } catch (error) {
       console.warn("Service worker registration failed", error);
     }

@@ -87,12 +87,12 @@ const LAYER_TEN_RANGES = {
 };
 
 const LAYER_ELEVEN_RANGES = {
-  1: [[8,8]], 2:[[6,10]],3:[[4,11]],4:[[2,3],[15,16]],
-  5:[[3,6],[15,15]],6:[[2,7],[15,16]],7:[[3,3],[5,6],[15,16]],
-  8:[[3,4],[15,15]],9:[[3,3],[15,16]],10:[[2,4],[15,16],[18,18]],
-  11:[[3,4],[15,15]],12:[[3,3],[15,16]],13:[[3,4],[11,16]],
-  14:[[3,3],[12,15]],15:[[4,6],[12,14]],16:[[4,7],[12,14]],
-  17:[[6,7],[12,14]],18:[[6,7],[12,13]],19:[[6,6],[12,12]]
+  1: [[8,8]], 2: [[6,9]], 3: [[5,11]], 4: [[2,4],[15,15]],
+  5: [[3,7],[15,15]], 6: [[2,8],[15,16]], 7: [[3,3],[5,7],[15,16]],
+  8: [[3,3],[15,15]], 9: [[3,3],[15,16]], 10: [[1,4],[15,18]],
+  11: [[3,4],[15,15]], 12: [[3,3],[14,15]], 13: [[3,4],[10,16]],
+  14: [[3,3],[11,15]], 15: [[4,6],[11,14]], 16: [[4,7],[12,14]],
+  17: [[6,7],[12,14]], 18: [[6,7],[12,13]], 19: [[6,6],[12,12]]
 };
 
 function cellsFromRanges(ranges) {
@@ -340,7 +340,9 @@ function renderMeta() {
                     ? "First branch shoulders and broken trunk skyline"
                   : layer === 10
                     ? "First overhead branch shoulders"
-                    : "Awaiting verified blueprint";
+                    : layer === 11
+                      ? "Crown transition and rising leaders"
+                      : "Awaiting verified blueprint";
   $("layerGuidance").textContent = layer === 1
     ? "Build the approved 19×19 ground-level footprint. Keep E4–N14 empty for the Pokémon Center and I15–J19 open for the south entrance."
     : layer === 2
@@ -361,7 +363,9 @@ function renderMeta() {
                     ? "Build 79 Puffy Tree Pillars above Layer 8. Red X squares mark 14 Layer 8 positions that stop here, while green-marked brown squares show 4 new outward shoulder blocks. Layer 9 is above the Pokémon Center blocking volume, so the blue clearance overlay is no longer shown. Keep the R10 shelf, strengthen the rear-left shoulder, add the smaller front-right shoulder, and allow several bark ribs to terminate so the top edge is no longer level."
                   : layer === 10
                     ? "Build 91 Puffy Tree Pillars above Layer 9. Red X squares mark 2 Layer 9 positions that stop here, while green-marked brown squares show 14 new overhead shoulder blocks. The rear-left shoulder reaches inward across E5–G7, and the smaller front-right shoulder reaches inward across K13–N14. Keep the center open between them; these shoulders do not connect yet."
-                    : "This layer remains blank until we verify its shape in Pokopia.";
+                    : layer === 11
+                      ? "Build 96 Puffy Tree Pillars above Layer 10. Red X squares mark 5 Layer 10 positions that stop here, while green-marked brown squares show 10 new blocks. Continue the rear-left leader inward through G5–H7, widen the front-right shoulder through J13–K15, keep the central roof opening unbridged, and preserve the small R10 shelf as part of the irregular bark silhouette."
+                      : "This layer remains blank until we verify its shape in Pokopia.";
   $("layerNotes").value = data.notes || "";
   $("layerStatus").textContent = data.completed ? "Complete" : "Not complete";
   $("layerStatus").classList.toggle("complete", data.completed);

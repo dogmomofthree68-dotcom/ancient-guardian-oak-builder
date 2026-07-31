@@ -1,12 +1,13 @@
-# Ancient Guardian Oak Builder — Layer 10 Update
+# Ancient Guardian Oak Builder — Layer 11 Fix
 
-This update continues from the approved **Layer 9** builder and adds the correctly loaded Layer 10 blueprint. Layers 1–9 remain unchanged.
+This corrected update continues from the approved **Layer 10** builder. Layers 1–10 remain unchanged.
 
-## Layer 10
+## Layer 11
 
-Build **91 Puffy Tree Pillars** above Layer 9. The comparison overlay shows **2 red-X omissions** and **14 new blocks**.
+Build **95 Puffy Tree Pillars** above Layer 10. The comparison overlay shows **5 red-X omissions** and **10 new blocks**.
 
-- Rear-left overhead shoulder: grows inward through E5–G7.
-- Front-right overhead shoulder: grows inward through K13–N14.
-- The shoulders remain separate, leaving the center over the Pokémon Center open.
-- The R10 decorative shelf remains.
+- Rear-left leader continues inward through G5–H7.
+- Front-right shoulder widens through J13–K15.
+- The center above the Pokémon Center remains open; the two sides do not connect yet.
+- The upper outline becomes less level as several bark ridges stop and stronger leaders continue.
+- The R10 decorative shelf remains part of the irregular bark silhouette.

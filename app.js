@@ -1,7 +1,7 @@
 const TOTAL_LAYERS = 52;
 const GRID_SIZE = 19;
 const STORAGE_KEY = "ancientGuardianOakBuilderV3"; // keep existing key so progress is preserved
-const APP_VERSION = 21;
+const APP_VERSION = 2112;
 const COLUMNS = "ABCDEFGHIJKLMNOPQRS".split("");
 const $ = (id) => document.getElementById(id);
 
@@ -309,7 +309,11 @@ function renderSummary() {
                   ? [["Grid","19 × 19"],["Placement","Above Layer 7"],["Blocks","89 Puffy Tree Pillars"],["Omitted from Layer 7","4 positions"],["Milestone","Final layer enclosing the Pokémon Center"]]
                   : state.currentLayer === 9
                     ? [["Grid","19 × 19"],["Placement","Above Layer 8"],["Blocks","79 Puffy Tree Pillars"],["Changes","14 omissions · 4 additions"],["Shape","First branch shoulders and broken skyline"]]
-                    : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
+                    : state.currentLayer === 10
+                      ? [["Grid","19 × 19"],["Placement","Above Layer 9"],["Blocks","91 Puffy Tree Pillars"],["Changes","2 omissions · 14 additions"],["Shape","First overhead branch shoulders"]]
+                      : state.currentLayer === 11
+                        ? [["Grid","19 × 19"],["Placement","Above Layer 10"],["Blocks","96 Puffy Tree Pillars"],["Changes","5 omissions · 10 additions"],["Shape","Crown transition and rising leaders"]]
+                        : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
   $("summaryFacts").innerHTML = facts.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
 }
 
@@ -541,7 +545,7 @@ function cubeFaces(x, y, z, size, scale, cx, cy, colorSet, kind = "wood") {
 
 function previewGeometry() {
   const faces = [];
-  const selectedLayer = Math.min(state.currentLayer, 9);
+  const selectedLayer = Math.min(state.currentLayer, 11);
   for (let layer = 1; layer <= selectedLayer; layer++) {
     const cells = state.layers[layer].cells;
     Object.keys(cells).forEach(key => {
@@ -617,7 +621,7 @@ renderAll = function() { baseRenderAll(); requestAnimationFrame(drawPreview); };
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try {
-      await navigator.serviceWorker.register("sw.js?v=21-layer9", { updateViaCache: "none" });
+      await navigator.serviceWorker.register("sw.js?v=21-layer11-fixed2", { updateViaCache: "none" });
     } catch (error) {
       console.warn("Service worker registration failed", error);
     }

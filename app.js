@@ -86,6 +86,15 @@ const LAYER_TEN_RANGES = {
   17: [[6,7],[12,14]], 18: [[6,7],[12,13]], 19: [[6,6],[12,12]]
 };
 
+const LAYER_ELEVEN_RANGES = {
+  1: [[8,8]], 2:[[6,10]],3:[[4,11]],4:[[2,3],[15,16]],
+  5:[[3,6],[15,15]],6:[[2,7],[15,16]],7:[[3,3],[5,6],[15,16]],
+  8:[[3,4],[15,15]],9:[[3,3],[15,16]],10:[[2,4],[15,16],[18,18]],
+  11:[[3,4],[15,15]],12:[[3,3],[15,16]],13:[[3,4],[11,16]],
+  14:[[3,3],[12,15]],15:[[4,6],[12,14]],16:[[4,7],[12,14]],
+  17:[[6,7],[12,14]],18:[[6,7],[12,13]],19:[[6,6],[12,12]]
+};
+
 function cellsFromRanges(ranges) {
   const cells = {};
   Object.entries(ranges).forEach(([row, rowRanges]) => {
@@ -105,11 +114,12 @@ function layerSevenCells() { return cellsFromRanges(LAYER_SEVEN_RANGES); }
 function layerEightCells() { return cellsFromRanges(LAYER_EIGHT_RANGES); }
 function layerNineCells() { return cellsFromRanges(LAYER_NINE_RANGES); }
 function layerTenCells() { return cellsFromRanges(LAYER_TEN_RANGES); }
+function layerElevenCells() { return cellsFromRanges(LAYER_ELEVEN_RANGES); }
 
 function freshState() {
   const layers = {};
   for (let i = 1; i <= TOTAL_LAYERS; i++) {
-    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : i === 3 ? layerThreeCells() : i === 4 ? layerFourCells() : i === 5 ? layerFiveCells() : i === 6 ? layerSixCells() : i === 7 ? layerSevenCells() : i === 8 ? layerEightCells() : i === 9 ? layerNineCells() : i === 10 ? layerTenCells() : {}, completed: false, notes: "" };
+    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : i === 3 ? layerThreeCells() : i === 4 ? layerFourCells() : i === 5 ? layerFiveCells() : i === 6 ? layerSixCells() : i === 7 ? layerSevenCells() : i === 8 ? layerEightCells() : i === 9 ? layerNineCells() : i === 10 ? layerTenCells() : i === 11 ? layerElevenCells() : {}, completed: false, notes: "" };
   }
   return {
     currentLayer: 1,
@@ -136,6 +146,7 @@ function loadState() {
     mergedLayers[8] = { ...base.layers[8], ...(mergedLayers[8] || {}), cells: layerEightCells() };
     mergedLayers[9] = { ...base.layers[9], ...(mergedLayers[9] || {}), cells: layerNineCells() };
     mergedLayers[10] = { ...base.layers[10], ...(mergedLayers[10] || {}), cells: layerTenCells() };
+    mergedLayers[11] = { ...base.layers[11], ...(mergedLayers[11] || {}), cells: layerElevenCells() };
     const savedSettings = saved.settings || {};
     const migratedSettings = { ...base.settings, ...savedSettings };
     // Migrate the old single “Changes Only” checkbox to the new comparison controls.

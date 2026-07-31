@@ -1,5 +1,5 @@
-const CACHE = "oak-builder-v21-layer12";
-const FILES = ["./", "index.html", "styles.css?v=21-layer12", "app.js?v=21-layer12", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png"];
+const CACHE = "oak-builder-v21-layer13";
+const FILES = ["./", "index.html", "styles.css?v=21-layer13", "app.js?v=21-layer13", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png"];
 self.addEventListener("install", event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener("activate", event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())));
 self.addEventListener("fetch", event => {

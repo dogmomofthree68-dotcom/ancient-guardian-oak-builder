@@ -68,7 +68,7 @@ const LAYER_EIGHT_RANGES = {
   17: [[6,7],[12,13]], 18: [[6,7],[12,13]], 19: [[6,7],[12,13]]
 };
 
-const LAYER_NINE_RANGES = {
+const LAYER_TEN_RANGES = {
   1: [[8,9]], 2: [[6,10]], 3: [[4,11]], 4: [[2,3],[15,16]],
   5: [[3,4],[15,15]], 6: [[2,4],[15,16]], 7: [[3,3],[15,16]],
   8: [[3,4],[15,15]], 9: [[3,3],[15,16]], 10: [[2,4],[15,16],[18,18]],
@@ -94,7 +94,7 @@ function layerFiveCells() { return cellsFromRanges(LAYER_FIVE_RANGES); }
 function layerSixCells() { return cellsFromRanges(LAYER_SIX_RANGES); }
 function layerSevenCells() { return cellsFromRanges(LAYER_SEVEN_RANGES); }
 function layerEightCells() { return cellsFromRanges(LAYER_EIGHT_RANGES); }
-function layerNineCells() { return cellsFromRanges(LAYER_NINE_RANGES); }
+function layerNineCells() { return cellsFromRanges(LAYER_TEN_RANGES); }
 
 function freshState() {
   const layers = {};
@@ -334,7 +334,7 @@ function renderMeta() {
                 : layer === 8
                   ? "Build 89 Puffy Tree Pillars above Layer 7. Red X squares mark the 4 Layer 7 positions that stop here. This is the final layer where the trunk volume encloses the Pokémon Center. Keep the entrance open, retain the R10 decorative shelf, and follow the uneven taper so the strongest bark ridges continue while the upper trunk begins to narrow."
                   : layer === 9
-                    ? "Build 79 Puffy Tree Pillars above Layer 8. Red X squares mark 14 Layer 8 positions that stop here, while green-marked brown squares show 4 new outward shoulder blocks. Layer 9 is above the Pokémon Center blocking volume, so the blue clearance overlay is no longer shown. Keep the R10 shelf, strengthen the rear-left shoulder, add the smaller front-right shoulder, and allow several bark ribs to terminate so the top edge is no longer level."
+                    ? "Build 79 Puffy Tree Pillars above Layer 8. Red X squares mark 14 Layer 8 positions that stop here, while green-marked brown squares show 4 new outward shoulder blocks. Layer 10 is above the Pokémon Center blocking volume, so the blue clearance overlay is no longer shown. Keep the R10 shelf, strengthen the rear-left shoulder, add the smaller front-right shoulder, and allow several bark ribs to terminate so the top edge is no longer level."
                     : "This layer remains blank until we verify its shape in Pokopia.";
   $("layerNotes").value = data.notes || "";
   $("layerStatus").textContent = data.completed ? "Complete" : "Not complete";

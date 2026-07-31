@@ -68,13 +68,22 @@ const LAYER_EIGHT_RANGES = {
   17: [[6,7],[12,13]], 18: [[6,7],[12,13]], 19: [[6,7],[12,13]]
 };
 
-const LAYER_TEN_RANGES = {
+const LAYER_NINE_RANGES = {
   1: [[8,9]], 2: [[6,10]], 3: [[4,11]], 4: [[2,3],[15,16]],
   5: [[3,4],[15,15]], 6: [[2,4],[15,16]], 7: [[3,3],[15,16]],
   8: [[3,4],[15,15]], 9: [[3,3],[15,16]], 10: [[2,4],[15,16],[18,18]],
   11: [[3,4],[15,15]], 12: [[3,3],[15,16]], 13: [[3,4],[15,16]],
   14: [[3,3],[15,15]], 15: [[4,6],[12,14]], 16: [[4,7],[12,14]],
   17: [[6,7],[12,14]], 18: [[6,7],[12,13]], 19: [[6,6],[12,13]]
+};
+
+const LAYER_TEN_RANGES = {
+  1: [[8,8]], 2: [[6,10]], 3: [[4,11]], 4: [[2,3],[15,16]],
+  5: [[3,6],[15,15]], 6: [[2,7],[15,16]], 7: [[3,3],[5,6],[15,16]],
+  8: [[3,4],[15,15]], 9: [[3,3],[15,16]], 10: [[2,4],[15,16],[18,18]],
+  11: [[3,4],[15,15]], 12: [[3,3],[15,16]], 13: [[3,4],[11,16]],
+  14: [[3,3],[12,15]], 15: [[4,6],[12,14]], 16: [[4,7],[12,14]],
+  17: [[6,7],[12,14]], 18: [[6,7],[12,13]], 19: [[6,6],[12,12]]
 };
 
 function cellsFromRanges(ranges) {
@@ -94,12 +103,13 @@ function layerFiveCells() { return cellsFromRanges(LAYER_FIVE_RANGES); }
 function layerSixCells() { return cellsFromRanges(LAYER_SIX_RANGES); }
 function layerSevenCells() { return cellsFromRanges(LAYER_SEVEN_RANGES); }
 function layerEightCells() { return cellsFromRanges(LAYER_EIGHT_RANGES); }
-function layerNineCells() { return cellsFromRanges(LAYER_TEN_RANGES); }
+function layerNineCells() { return cellsFromRanges(LAYER_NINE_RANGES); }
+function layerTenCells() { return cellsFromRanges(LAYER_TEN_RANGES); }
 
 function freshState() {
   const layers = {};
   for (let i = 1; i <= TOTAL_LAYERS; i++) {
-    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : i === 3 ? layerThreeCells() : i === 4 ? layerFourCells() : i === 5 ? layerFiveCells() : i === 6 ? layerSixCells() : i === 7 ? layerSevenCells() : i === 8 ? layerEightCells() : i === 9 ? layerNineCells() : {}, completed: false, notes: "" };
+    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : i === 3 ? layerThreeCells() : i === 4 ? layerFourCells() : i === 5 ? layerFiveCells() : i === 6 ? layerSixCells() : i === 7 ? layerSevenCells() : i === 8 ? layerEightCells() : i === 9 ? layerNineCells() : i === 10 ? layerTenCells() : {}, completed: false, notes: "" };
   }
   return {
     currentLayer: 1,
@@ -125,6 +135,7 @@ function loadState() {
     mergedLayers[7] = { ...base.layers[7], ...(mergedLayers[7] || {}), cells: layerSevenCells() };
     mergedLayers[8] = { ...base.layers[8], ...(mergedLayers[8] || {}), cells: layerEightCells() };
     mergedLayers[9] = { ...base.layers[9], ...(mergedLayers[9] || {}), cells: layerNineCells() };
+    mergedLayers[10] = { ...base.layers[10], ...(mergedLayers[10] || {}), cells: layerTenCells() };
     const savedSettings = saved.settings || {};
     const migratedSettings = { ...base.settings, ...savedSettings };
     // Migrate the old single “Changes Only” checkbox to the new comparison controls.
@@ -316,6 +327,8 @@ function renderMeta() {
                   ? "Final Pokémon Center enclosure layer"
                   : layer === 9
                     ? "First branch shoulders and broken trunk skyline"
+                  : layer === 10
+                    ? "First overhead branch shoulders"
                     : "Awaiting verified blueprint";
   $("layerGuidance").textContent = layer === 1
     ? "Build the approved 19×19 ground-level footprint. Keep E4–N14 empty for the Pokémon Center and I15–J19 open for the south entrance."
@@ -334,7 +347,9 @@ function renderMeta() {
                 : layer === 8
                   ? "Build 89 Puffy Tree Pillars above Layer 7. Red X squares mark the 4 Layer 7 positions that stop here. This is the final layer where the trunk volume encloses the Pokémon Center. Keep the entrance open, retain the R10 decorative shelf, and follow the uneven taper so the strongest bark ridges continue while the upper trunk begins to narrow."
                   : layer === 9
-                    ? "Build 79 Puffy Tree Pillars above Layer 8. Red X squares mark 14 Layer 8 positions that stop here, while green-marked brown squares show 4 new outward shoulder blocks. Layer 10 is above the Pokémon Center blocking volume, so the blue clearance overlay is no longer shown. Keep the R10 shelf, strengthen the rear-left shoulder, add the smaller front-right shoulder, and allow several bark ribs to terminate so the top edge is no longer level."
+                    ? "Build 79 Puffy Tree Pillars above Layer 8. Red X squares mark 14 Layer 8 positions that stop here, while green-marked brown squares show 4 new outward shoulder blocks. Layer 9 is above the Pokémon Center blocking volume, so the blue clearance overlay is no longer shown. Keep the R10 shelf, strengthen the rear-left shoulder, add the smaller front-right shoulder, and allow several bark ribs to terminate so the top edge is no longer level."
+                  : layer === 10
+                    ? "Build 91 Puffy Tree Pillars above Layer 9. Red X squares mark 2 Layer 9 positions that stop here, while green-marked brown squares show 14 new overhead shoulder blocks. The rear-left shoulder reaches inward across E5–G7, and the smaller front-right shoulder reaches inward across K13–N14. Keep the center open between them; these shoulders do not connect yet."
                     : "This layer remains blank until we verify its shape in Pokopia.";
   $("layerNotes").value = data.notes || "";
   $("layerStatus").textContent = data.completed ? "Complete" : "Not complete";
@@ -389,7 +404,7 @@ $("completeLayer").addEventListener("click", () => {
 
 $("resetLayer").addEventListener("click", () => {
   if (!confirm(`Restore the approved pattern for Layer ${state.currentLayer}?`)) return;
-  state.layers[state.currentLayer].cells = state.currentLayer <= 2 ? layerOneCells() : state.currentLayer === 3 ? layerThreeCells() : state.currentLayer === 4 ? layerFourCells() : state.currentLayer === 5 ? layerFiveCells() : state.currentLayer === 6 ? layerSixCells() : state.currentLayer === 7 ? layerSevenCells() : state.currentLayer === 8 ? layerEightCells() : state.currentLayer === 9 ? layerNineCells() : {};
+  state.layers[state.currentLayer].cells = state.currentLayer <= 2 ? layerOneCells() : state.currentLayer === 3 ? layerThreeCells() : state.currentLayer === 4 ? layerFourCells() : state.currentLayer === 5 ? layerFiveCells() : state.currentLayer === 6 ? layerSixCells() : state.currentLayer === 7 ? layerSevenCells() : state.currentLayer === 8 ? layerEightCells() : state.currentLayer === 9 ? layerNineCells() : state.currentLayer === 10 ? layerTenCells() : {};
   state.selected = null;
   save(); renderAll();
 });
@@ -440,6 +455,7 @@ $("importProject").addEventListener("change", async e => {
     state.layers[7] = { ...state.layers[7], cells: layerSevenCells() };
     state.layers[8] = { ...state.layers[8], cells: layerEightCells() };
     state.layers[9] = { ...state.layers[9], cells: layerNineCells() };
+    state.layers[10] = { ...state.layers[10], cells: layerTenCells() };
     save(); renderAll(); alert("Progress imported.");
   } catch { alert("That progress file could not be imported."); }
   e.target.value = "";

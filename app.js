@@ -131,6 +131,15 @@ const LAYER_FIFTEEN_RANGES = {
 };
 
 
+const LAYER_SIXTEEN_RANGES = {
+  1: [[7,8]], 2: [[6,8]], 3: [[6,9]], 4: [[4,7],[12,14]],
+  5: [[4,8],[12,14]], 6: [[4,8],[13,14]], 7: [[3,3],[6,8]],
+  8: [[3,3]], 9: [[3,3]], 10: [[1,4],[15,15]], 11: [[3,4]],
+  12: [[3,3],[14,14]], 13: [[3,4],[11,13]], 14: [[3,3],[11,13]],
+  15: [[4,6],[12,13]], 16: [[5,7],[12,12]], 17: [[6,7],[12,12]],
+  18: [[6,7]], 19: [[6,6]]
+};
+
 function cellsFromRanges(ranges) {
   const cells = {};
   Object.entries(ranges).forEach(([row, rowRanges]) => {
@@ -155,11 +164,12 @@ function layerTwelveCells() { return cellsFromRanges(LAYER_TWELVE_RANGES); }
 function layerThirteenCells() { return cellsFromRanges(LAYER_THIRTEEN_RANGES); }
 function layerFourteenCells() { return cellsFromRanges(LAYER_FOURTEEN_RANGES); }
 function layerFifteenCells() { return cellsFromRanges(LAYER_FIFTEEN_RANGES); }
+function layerSixteenCells() { return cellsFromRanges(LAYER_SIXTEEN_RANGES); }
 
 function freshState() {
   const layers = {};
   for (let i = 1; i <= TOTAL_LAYERS; i++) {
-    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : i === 3 ? layerThreeCells() : i === 4 ? layerFourCells() : i === 5 ? layerFiveCells() : i === 6 ? layerSixCells() : i === 7 ? layerSevenCells() : i === 8 ? layerEightCells() : i === 9 ? layerNineCells() : i === 10 ? layerTenCells() : i === 11 ? layerElevenCells() : i === 12 ? layerTwelveCells() : i === 13 ? layerThirteenCells() : i === 14 ? layerFourteenCells() : i === 15 ? layerFifteenCells() : {}, completed: false, notes: "" };
+    layers[i] = { cells: (i === 1 || i === 2) ? layerOneCells() : i === 3 ? layerThreeCells() : i === 4 ? layerFourCells() : i === 5 ? layerFiveCells() : i === 6 ? layerSixCells() : i === 7 ? layerSevenCells() : i === 8 ? layerEightCells() : i === 9 ? layerNineCells() : i === 10 ? layerTenCells() : i === 11 ? layerElevenCells() : i === 12 ? layerTwelveCells() : i === 13 ? layerThirteenCells() : i === 14 ? layerFourteenCells() : i === 15 ? layerFifteenCells() : i === 16 ? layerSixteenCells() : {}, completed: false, notes: "" };
   }
   return {
     currentLayer: 1,
@@ -191,6 +201,7 @@ function loadState() {
     mergedLayers[13] = { ...base.layers[13], ...(mergedLayers[13] || {}), cells: layerThirteenCells() };
     mergedLayers[14] = { ...base.layers[14], ...(mergedLayers[14] || {}), cells: layerFourteenCells() };
     mergedLayers[15] = { ...base.layers[15], ...(mergedLayers[15] || {}), cells: layerFifteenCells() };
+    mergedLayers[16] = { ...base.layers[16], ...(mergedLayers[16] || {}), cells: layerSixteenCells() };
     const savedSettings = saved.settings || {};
     const migratedSettings = { ...base.settings, ...savedSettings };
     // Migrate the old single “Changes Only” checkbox to the new comparison controls.
@@ -365,7 +376,9 @@ function renderSummary() {
                               ? [["Grid","19 × 19"],["Placement","Above Layer 13"],["Blocks","71 Puffy Tree Pillars"],["Changes","11 omissions · 1 addition"],["Shape","Stronger inward taper with a westward leader"]]
                               : state.currentLayer === 15
                                 ? [["Grid","19 × 19"],["Placement","Above Layer 14"],["Blocks","68 Puffy Tree Pillars"],["Changes","12 omissions · 9 additions"],["Shape","Rear opening narrows into an irregular fissure; westward leader retained"]]
-                                : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
+                                : state.currentLayer === 16
+                                  ? [["Grid","19 × 19"],["Placement","Above Layer 15"],["Blocks","70 Puffy Tree Pillars"],["Changes","4 omissions · 6 additions"],["Shape","Five rising leaders; rear fissure narrows and the leftward crown begins"]]
+                                  : [["Status","Awaiting verified blueprint"],["Placed blocks",String(count)]];
   $("summaryFacts").innerHTML = facts.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
 }
 
@@ -491,7 +504,7 @@ $("completeLayer").addEventListener("click", () => {
 
 $("resetLayer").addEventListener("click", () => {
   if (!confirm(`Restore the approved pattern for Layer ${state.currentLayer}?`)) return;
-  state.layers[state.currentLayer].cells = state.currentLayer <= 2 ? layerOneCells() : state.currentLayer === 3 ? layerThreeCells() : state.currentLayer === 4 ? layerFourCells() : state.currentLayer === 5 ? layerFiveCells() : state.currentLayer === 6 ? layerSixCells() : state.currentLayer === 7 ? layerSevenCells() : state.currentLayer === 8 ? layerEightCells() : state.currentLayer === 9 ? layerNineCells() : state.currentLayer === 10 ? layerTenCells() : state.currentLayer === 11 ? layerElevenCells() : state.currentLayer === 12 ? layerTwelveCells() : state.currentLayer === 13 ? layerThirteenCells() : state.currentLayer === 14 ? layerFourteenCells() : state.currentLayer === 15 ? layerFifteenCells() : {};
+  state.layers[state.currentLayer].cells = state.currentLayer <= 2 ? layerOneCells() : state.currentLayer === 3 ? layerThreeCells() : state.currentLayer === 4 ? layerFourCells() : state.currentLayer === 5 ? layerFiveCells() : state.currentLayer === 6 ? layerSixCells() : state.currentLayer === 7 ? layerSevenCells() : state.currentLayer === 8 ? layerEightCells() : state.currentLayer === 9 ? layerNineCells() : state.currentLayer === 10 ? layerTenCells() : state.currentLayer === 11 ? layerElevenCells() : state.currentLayer === 12 ? layerTwelveCells() : state.currentLayer === 13 ? layerThirteenCells() : state.currentLayer === 14 ? layerFourteenCells() : state.currentLayer === 15 ? layerFifteenCells() : state.currentLayer === 16 ? layerSixteenCells() : {};
   state.selected = null;
   save(); renderAll();
 });
@@ -618,7 +631,7 @@ function cubeFaces(x, y, z, size, scale, cx, cy, colorSet, kind = "wood") {
 
 function previewGeometry() {
   const faces = [];
-  const selectedLayer = Math.min(state.currentLayer, 15);
+  const selectedLayer = Math.min(state.currentLayer, 16);
   for (let layer = 1; layer <= selectedLayer; layer++) {
     const cells = state.layers[layer].cells;
     Object.keys(cells).forEach(key => {
@@ -671,7 +684,7 @@ function drawPreview() {
   faces.sort((a,b)=>a.depth-b.depth || (a.kind === "center" ? -1 : 1));
   faces.forEach(face=>polygon(ctx,face.pts,face.fill,face.kind === "center" ? "rgba(48,112,139,.38)" : "rgba(42,31,20,.34)"));
   ctx.fillStyle="rgba(44,51,38,.8)"; ctx.font="700 12px system-ui";
-  ctx.fillText(`Layers 1–${Math.min(state.currentLayer,15)} • drag to rotate`,12,20);
+  ctx.fillText(`Layers 1–${Math.min(state.currentLayer,16)} • drag to rotate`,12,20);
 }
 
 function setupPreview() {
@@ -694,7 +707,7 @@ renderAll = function() { baseRenderAll(); requestAnimationFrame(drawPreview); };
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try {
-      await navigator.serviceWorker.register("sw.js?v=21-layer15", { updateViaCache: "none" });
+      await navigator.serviceWorker.register("sw.js?v=21-layer16", { updateViaCache: "none" });
     } catch (error) {
       console.warn("Service worker registration failed", error);
     }

@@ -1,13 +1,13 @@
-Ancient Guardian Oak Builder — Layer 16
+Ancient Guardian Oak Builder — Layer 17
 
-This update adds the verified Layer 16 construction blueprint only.
+This update adds the verified Layer 17 construction blueprint only.
 
-Layer 16 contains 70 Puffy Tree Pillars:
-- 4 Layer 15 positions stop here and appear as red X omissions.
-- 6 new blocks appear green-marked.
-- Five dominant leaders begin breaking the flat skyline.
-- The rear fissure narrows without closing completely.
-- The first clear leftward crown movement begins.
-- The south entrance and central roof opening remain clear.
+Layer 17 contains 68 Puffy Tree Pillars:
+- 5 Layer 16 positions stop here and appear as red X omissions.
+- 3 new blocks appear green-marked at F1, E2, and E3.
+- The rear-left leader becomes the dominant crown leader.
+- The first heavy left branch shoulder begins without a matching right-side shoulder.
+- Several secondary right and interior columns terminate to break the flat skyline.
+- The south entrance and central hollow remain clear.
 
-Layers 1–15 are unchanged. The rotatable preview now renders through Layer 16.
+Layers 1–16 are unchanged. The rotatable preview now renders through Layer 17.
